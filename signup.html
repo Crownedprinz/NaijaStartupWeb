@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Naija-Startup Login</title>
+    <link rel="stylesheet" href="custom/css/bootstrap.min.css">
+    <link href="custom/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="custom/css/signup.css">
+    <link rel="stylesheet" href="custom/css/loadingicon.css">
+    
+</head>
+<body>
+        <div class="se-pre-con"></div>
+    <div class="lgPage">
+        <div  class="form">
+            <div id="id_form" class="register-form">
+                <div class="panel-heading">
+                    <b class="secure"> <a>Naija-Startup</a> - Sign Up</b><span><i class="fa fa-lock fa-2x  "></i></span>
+                </div>
+                <input type="text" placeholder="First Name" id="id_firstName" value="" autocomplete="off" required>
+                <input type="text" placeholder="Last Name" id="id_lastName" value="" autocomplete="off" required>
+                <input type="email" placeholder="Email" value="" id="id_Email" autocomplete="off" required>
+                <input type="email" placeholder="Confirm Email" id="id_confirm_email" value="" autocomplete="off" required>
+                <input type="text" placeholder="Username" value="" id="id_userName" autocomplete="off" required>
+                <div>
+                    <input type="password" placeholder="Password" id="id_password" value="" autocomplete="off" required>
+                    <span toggle="#id_password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                </div>
+                <div>
+                    <span id='message'></span>
+                    <input type="password" placeholder="Confirm Password" id="id_confirm_password" value="" autocomplete="off" required>
+                    <span toggle="#id_confirm_password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+
+                </div>
+                <button type="submit" id="id_signup" onclick="signUpPost()" class="btn btn-danger btn-lg">Sign Up</button>
+                <p class="message">Already Registered?  <a href="#" id="id_LoginLink">Login</a></p>
+            </div>
+            <div id="login-form" style="display:none;">
+                <div class="panel-heading">
+                    <b class="secure"> <a>Naija-Startup</a> - Login</b><span class="pull-right"><i class="fa fa-lock fa-2x  "></i></span>
+                </div>
+                <div>
+                    <input type="text" name="user"  id="id_userName1"  value="" autocomplete="off" placeholder="Username" required>
+                </div>
+                <div class="d-inline-flex">
+                    <input type="password"  id="id_password2"  name="pass" value="" autocomplete="off" placeholder="Password" required>
+                    <span toggle="#id_password2" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg" onclick="loginPost()">Login</button>
+                <div>
+                    <div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="id_rememberme" name="remember" /> Remember me
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <p class="message">Not Registered?  <a  href="#"  id="id_registerLink">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="custom/js/jquery.min.js"></script>
+    <script>
+    //paste this code under the head tag or in a separate js file.
+	// Wait for window load
+	$(window).load(function() {
+		// Animate loader off screen
+		$(".se-pre-con").fadeOut("slow");
+
+
+    });
+    $("#id_signup").submit(function (event) {
+
+        var isValid = $('#id_signup').valid();
+        if (isValid) {    
+            // Animate loader
+            $(".se-pre-con").fadeIn("slow");
+        }
+    });
+
+
+    </script>
+    <script>
+        $('.message a').click(() =>
+            $('form').animate({ height: "toggle", opacity: "toggle" }, "fast")
+        )
+        $("#id_LoginLink").click(function () {
+            document.getElementById("login-form").style.display = "block";
+            document.getElementById("id_form").style.display = "none";
+        });
+        $("#id_registerLink").click(function () {
+            document.getElementById("id_form").style.display = "block";
+             document.getElementById("login-form").style.display = "none";
+        });
+
+
+                    //TOGGLE PASSWORD VISIBILITY
+    $(".toggle-password").click(function() {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            if (input.attr("type") == "password") {
+            input.attr("type", "text");
+            } else {
+        input.attr("type", "password");
+        }
+        });
+
+
+
+        function loginPost() {
+            $(".se-pre-con").fadeIn("slow");
+        var val3 = document.getElementById("id_rememberme").checked
+        var val1 = $('#id_userName1').val();
+        var val2 = $('#id_password2').val();
+        if (val1 === null || val1 === ""){
+                    alert("Please Input your username or email");
+                    $(".se-pre-con").fadeOut("slow");
+                    return;
+                }
+            if (val2 === null || val2 === "") {
+                alert("Please Input your password");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+
+        $.ajax({
+            type: "post",
+            url: "/Account/Index",
+            data:{ "username": val1, "password": val2, "rememberMe":val3  },
+            success: function (data) {
+                if (data) {
+                     window.location.href = "/Dashboard/Index";
+                }
+                else
+                {
+                   alert("Invalid username or password")
+                             $(".se-pre-con").fadeOut("slow");
+                             return;
+                }
+
+
+            }
+        })
+    }
+    </script>
+
+    <script>
+        $('#id_password, #id_confirm_password').on('keyup', function () {
+            if ($('#id_password').val() == $('#id_confirm_password').val()) {
+                $('#message').html('Matching').css('color', 'green');
+            } else
+                $('#message').html('Not Matching').css('color', 'red');
+        });
+
+
+
+        function signUpPost() {
+            $(".se-pre-con").fadeIn("slow");
+            var firstName = $('#id_firstName').val();
+            var lastName = $('#id_lastName').val();
+            var Email = $('#id_Email').val();
+            var userName = $('#id_userName').val();
+            var password = $('#id_password').val();
+            var confirmpassword = $('#id_confirm_password').val();
+            var confirmEmail = $('#id_confirm_email').val();
+            if (firstName === null || firstName === "") {
+                alert("Please Input your First Name");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (lastName === null || lastName === "") {
+                alert("Please Input your Last Name");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (Email === null || Email === "") {
+                return alert("Please Input your Email");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (userName === null || userName === "") {
+                return alert("Please Input your userName");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (password === null || password === "") {
+                alert("Please Input your password");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (confirmpassword === null || confirmpassword === "") {
+                return alert("Please Confrim your password");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+            if (confirmEmail === null || confirmEmail === "") {
+                alert("Please Confrim your Email");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+
+            if (confirmEmail !=Email) {
+                alert("Please make sure you confirm email matches your email");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+
+            if (confirmpassword != password) {
+                alert("Please make sure you confirm password matches your password");
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
+
+
+            $.ajax({
+            type: "post",
+            url: "/Account/SignUp",
+            async: true,
+            data: { "firstName": firstName, "lastName": lastName, "email": Email, "username": userName, "password": password },
+                success: function (data) {
+                    var obj = JSON.stringify(data);
+                    var jsonObj = JSON.parse(obj.toString());
+                    if (jsonObj.isSuccessful) {
+                        alert("Successfully Registered, Please click the Login Button to Sign in");
+                        window.location.href = "/Index.html";
+                    }
+                else {
+                    alert(jsonObj.error);
+                     $(".se-pre-con").fadeOut("slow");
+                    return;
+                }
+            }
+        });
+    }
+    </script>
+</body>
+</html>

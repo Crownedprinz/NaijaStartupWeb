@@ -1,0 +1,409 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using NaijaStartupWeb.Helpers;
+@inject IHttpContextAccessor hcontext
+@model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
+@{
+    ViewData["Title"] = "owner_details";
+    Layout = "~/Views/Shared/_CompanyLayout.cshtml";
+    NaijaStartupWeb.Models.NsuVariables.TemporaryVariables _temporaryVariables = hcontext.HttpContext.Session.GetObject<NaijaStartupWeb.Models.NsuVariables.TemporaryVariables>("TemporaryVariables");
+
+}
+<!-- Page Content-->
+<form role="form" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    <div class="page-content">
+        <h2 style="color:red">@ViewBag.message</h2>
+        <div class="container-fluid">
+            <!-- Page-Title -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="page-title-box">
+                        <h4 class="page-title">Set Up Company</h4>
+                    </div>
+                    <!--end page-title-box-->
+                </div>
+                <!--end col-->
+            </div>
+            <!-- end page title end breadcrumb -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row sgf-incorporate-page-step-5">
+                                <div class="align-center" id="incorporateContent">
+                                    <div class="grid-container full white-bg margin-bottom-3">
+                                        <div class="grid-container">
+                                            <div class="grid-x text-center incorporate-process">
+                                                <div class="medium-2 cell">
+                                                    <p class="step-active">1. Company Name</p>
+                                                </div>
+                                                <div class="medium-2 cell padding-horizontal-1">
+                                                    <p class="step-active">2. Packages</p>
+                                                </div>
+                                                <div class="medium-3 cell padding-right-1">
+                                                    <p class="step-active">3. Details</p>
+                                                </div>
+                                                <div class="medium-2 cell padding-horizontal-1">
+                                                    <p class="step-active">4. Officers</p>
+                                                </div>
+                                                <div class="medium-1 cell ">
+                                                    <p class="">5. Capital</p>
+                                                </div>
+                                                <div class="medium-2 cell padding-left-1">
+                                                    <p class="">6. Review / Payment</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tabs-panel is-active" id="officers-tab">
+                                        <div class="grid-x grid-padding-x">
+                                            <div id="officerForm" class="large-8 medium-12 cell">
+                                                <h3 class="thin-text text-center">
+                                                    <span class="incorporate-company-name">@_temporaryVariables.string_var1</span>
+                                                    <a href="#" class="small-text text-underline" data-toggle="modal" data-target="#sgf-incorporate-change-company-name-popup" tabindex="0"><i class="far fa-edit"></i> Edit</a>
+                                                </h3>
+                                                <table class="hover unstriped sgf-incorporate-no-director ">
+                                                    <tbody>
+                                                        <tr class="tr_no_director_paddle">
+                                                            <td width="400">DO NOT HAVE a director who is local resident </td>
+                                                            <td width="50" class="text-center">
+                                                                <div class="switch margin-0 small">
+                                                                    <div class="hide">
+                                                                        @Html.HiddenFor(m => m.decimal_var0)
+                                                                        @Html.HiddenFor(m => m.decimal_var1)
+                                                                        <div class="js-form-item form-item js-form-type-checkbox form-item-local-resident js-form-item-local-resident">
+                                                                            @*<input data-drupal-selector="edit-local-resident" type="checkbox" id="edit-local-resident" name="bool_var0" value="1" class="form-checkbox edit-local-resident">*@
+                                                                            <div class=form-checkbox edit-local-resident">
+                                                                                @Html.CheckBoxFor(model => Model.bool_var0, new { @id = "edit-local-resident" })
+                                                                                <label for="edit-local-resident" class="option">Local Resident</label>
+
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <input class="switch-input no_director_input" id="edit-local-resident-replica" type="checkbox" autocomplete="off">
+                                                                    <label class="switch-paddle no_director_paddle" for="edit-local-resident-replica">
+                                                                        <span class="show-for-sr">Add Services</span>
+                                                                    </label>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="service-name1 p-s-item service-local-resident" style="">
+                                                            <td width="300" class=" title ">• Nominee Director (1yr)</td>
+                                                            <td width="80" class="text-right value " data-price="2400">@Model.string_var3</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div id="newOfficer" class="width-100">
+                                                    <div id="sgf-incorporate-officers-wrapper">
+                                                        <ul class="accordion" data-accordion="t043pq-accordion" data-allow-all-closed="true" id="tableOfficer" role="tablist">
+                                                            <li class="accordion-item officer-full-detail-0 margin-bottom-1 is-active" data-accordion-item="">
+                                                                <a href="#" class="accordion-title" aria-controls="qbstma-accordion" role="tab" id="qbstma-accordion-label" aria-expanded="true" aria-selected="true">
+                                                                    <strong>Officer 1:</strong>
+                                                                    <strong class="temporary_officer_name"></strong>
+                                                                </a>
+                                                                <div class="accordion-content padding-vertical-0 padding-horizontal-0" data-tab-content="" role="tabpanel" aria-labelledby="qbstma-accordion-label" aria-hidden="false" id="qbstma-accordion" style="display: block;">
+                                                                    <div class="required-fields field-group-html-element grid-x grid-padding-x light-bg margin-horizontal-0 padding-vertical-1">
+                                                                        <div class="large-8 medium-8 cell sgf-officer-field-full-name">
+
+                                                                            <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-full-name js-form-item-officers-0-content-full-name">
+                                                                                <label for="edit-officers-0-content-full-name form-required">Full Name (as in passport) *</label>
+                                                                                @Html.TextBoxFor(m => m.string_array_temp0[0], new { @class = "sgf-officer-fullname required form-text edit-officers-0-content-full-name", maxlength = 128, id = "edit-officers-0-content-full-name", @placeholder = "E.G. OFFICER FULL NAME", @required = "required", name = "officers[0][content][full_name]", size = "60" })
+                                                                            </div>
+
+                                                                        </div><div class="large-4 medium-4 cell">
+
+                                                                            <div class="js-form-item form-item js-form-type-select form-item-officers-0-content-gender js-form-item-officers-0-content-gender">
+                                                                                <label for="edit-officers-0-content-gender">Gender</label>
+                                                                                @Html.DropDownListFor(m => m.string_array_temp0[1],
+                                                                                 new List<SelectListItem>
+                                                                                  {
+                                                                                      new SelectListItem {Text = "Female", Value = "Female"},
+                                                                                      new SelectListItem {Text = "Male", Value = "Male"},
+                                                                                  }, "Select", new { @class = "form-select", @id = "edit-officers-0-content-gender", @name = "officers[0][content][gender]" })
+                                                                            </div>
+
+                                                                        </div>
+
+                                                                        <fieldset class="designation cell js-form-item form-item js-form-wrapper form-wrapper" data-drupal-selector="edit-officers-0-content-designation" id="edit-officers-0-content-designation">
+                                                                            <div class="fieldset">
+                                                                                <label for="">Designation *</label>
+
+                                                                                <div class="fieldset-wrapper ">
+
+                                                                                    <div id="edit-officers-0-content-designation-position" class="form-checkboxes">
+
+                                                                                        <div class="js-form-item form-item js-form-type-checkbox form-item-officers-0-content-designation-position-1119 js-form-item-officers-0-content-designation-position-1119">
+                                                                                            <input data-drupal-selector="edit-officers-0-content-designation-position-1119" type="checkbox" id="edit-officers-0-content-designation-position-1119" name="string_array_temp0[2]" value="1119" class="form-checkbox edit-officers-0-content-designation-position-1119">
+
+                                                                                            <label for="edit-officers-0-content-designation-position-1119" class="option">Cheif Executive Officer</label>
+                                                                                        </div>
+                                                                                        <div class="js-form-item form-item js-form-type-checkbox form-item-officers-0-content-designation-position-1116 js-form-item-officers-0-content-designation-position-1116">
+                                                                                            <input data-drupal-selector="edit-officers-0-content-designation-position-1116" type="checkbox" id="edit-officers-0-content-designation-position-1116" name="string_array_temp0[3]" value="1116" class="form-checkbox edit-officers-0-content-designation-position-1116">
+
+                                                                                            <label for="edit-officers-0-content-designation-position-1116" class="option">Director</label>
+                                                                                        </div>
+                                                                                        <div class="js-form-item form-item js-form-type-checkbox form-item-officers-0-content-designation-position-1118 js-form-item-officers-0-content-designation-position-1118">
+                                                                                            <input data-drupal-selector="edit-officers-0-content-designation-position-1118" type="checkbox" id="edit-officers-0-content-designation-position-1118" name="string_array_temp0[4]" value="1118" class="form4checkbox edit-officers-0-content-designation-position-1118" disabled="disabled">
+
+                                                                                            <label for="edit-officers-0-content-designation-position-1118" class="option">Managing Director</label>
+                                                                                        </div>
+                                                                                        <div class="js-form-item form-item js-form-type-checkbox form-item-officers-0-content-designation-position-1117 js-form-item-officers-0-content-designation-position-1117">
+                                                                                            <input data-drupal-selector="edit-officers-0-content-designation-position-1117" type="checkbox" id="edit-officers-0-content-designation-position-1117" name="string_array_temp0[5]" value="1117" class="form-checkbox edit-officers-0-content-designation-position-1117">
+
+                                                                                            <label for="edit-officers-0-content-designation-position-1117" class="option">Shareholder</label>
+                                                                                        </div>
+                                                                                        <div style="clear:both;"></div>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </fieldset>
+                                                                        <div class="large-4 medium-4 cell">
+
+                                                                            <div class="js-form-item form-item js-form-type-select form-item-officers-0-content-id-type js-form-item-officers-0-content-id-type">
+                                                                                <label for="edit-officers-0-content-id-type">ID Type *</label>
+                                                                                @Html.DropDownListFor(m => m.string_array_temp0[6],
+                                                                                          new List<SelectListItem>
+                                                                                           {
+                                                                                               new SelectListItem {Text = "International Passport", Value = "International Passport"},
+                                                                                               new SelectListItem {Text = "Voters Card", Value = "International Passport"},
+                                                                                               new SelectListItem {Text = "National Id Card", Value = "National Id Card"},
+                                                                                           }, "Select", new { @class = "form-select", @id = "edit-officers-0-content-gender", @name = "officers[0][content][gender]", @required = "required" })
+                                                                            </div>
+
+                                                                        </div><div class="large-8 medium-8 cell">
+
+                                                                            <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-id-number js-form-item-officers-0-content-id-number">
+                                                                                <label for="edit-officers-0-content-id-number">ID Number *</label>
+                                                                                @Html.TextBoxFor(m => m.string_array_temp0[7], new { @class = "form-text edit-officers-0-content-id-number", @required = "required", maxlength = 128, id = "edit-officers-0-content-id-number", @placeholder = "E.G. S43218765G", name = "officers[0][content][id_number]", size = "60" })
+                                                                            </div><div class="large-4 medium-4 cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-select form-item-officers-0-content-nationality js-form-item-officers-0-content-nationality">
+                                                                                    <label for="edit-officers-0-content-nationality">Nationality *</label>
+                                                                                    @Html.DropDownListFor(m => m.string_array_temp0[8], ViewBag.country as SelectList, "None", new { @class = "chosen-select-list form-select select2-hidden-accessible", @id = "edit-officers-0-content-nationality", @required = "required" })
+                                                                                </div>
+
+                                                                            </div><div class="large-4 medium-4 cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-select form-item-officers-0-content-country-of-birth js-form-item-officers-0-content-country-of-birth">
+                                                                                    <label for="edit-officers-0-content-country-of-birth">Country of Birth *</label>
+                                                                                    @Html.DropDownListFor(m => m.string_array_temp0[9], ViewBag.country as SelectList, "None", new { @class = "chosen-select-list form-select select2-hidden-accessible", @id = "edit-officers-0-content-country-of-birth" })
+
+                                                                                </div>
+
+                                                                            </div><div class="cell medium-4 sgf-incorporate-date-of-birth">
+                                                                                <div id="edit-officers-0-content-birthday">
+                                                                                    <label> Date of Birth * </label>
+                                                                                    @Html.TextBoxFor(m => m.string_array_temp0[10], new { @class = "form-selec datet", @maxlength = "10", @required = "required" })
+                                                                                </div>
+
+
+                                                                            </div><div class="large-8 medium-8 cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-email form-item-officers-0-content-email js-form-item-officers-0-content-email">
+                                                                                    <label for="edit-officers-0-content-email">Email Address *</label>
+                                                                                    @Html.TextBoxFor(m => m.string_array_temp0[11], new { @class = "form-email edit-officers-0-content-email", maxlength = 128, id = "edit-officers-0-content-email", @placeholder = "E.G. YOURMAIL@YOURDOMAIN.COM", name = "officers[0][content][email]", size = "60" })
+                                                                                </div>
+
+                                                                            </div><div class="large-4 medium-4 cell sgf-input-phone">
+
+                                                                                <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-mobile js-form-item-officers-0-content-mobile">
+                                                                                    <label for="edit-officers-0-content-mobile">Mobile *</label>
+                                                                                    @Html.TextBoxFor(m => m.string_array_temp0[12], new { @class = "form-text edit-officers-0-content-mobile", maxlength = 128, id = "edit-officers-0-content-mobile", @placeholder = "E.G. +65 1234 5678", name = "officers[0][content][mobile]", size = "60" })
+                                                                                </div>
+
+                                                                            </div><div class="cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-address-1 js-form-item-officers-0-content-address-1">
+                                                                                    <label for="edit-officers-0-content-address-1">Address Line 1 *</label>
+                                                                                    <input data-drupal-selector="edit-officers-0-content-address-1" type="text" id="edit-officers-0-content-address-1" name="string_array_temp0[13]" value="" size="60" maxlength="128" placeholder="E.G. 10 ANSON ROAD #00-00" class="form-text edit-officers-0-content-address-1">
+
+                                                                                </div>
+
+                                                                            </div><div class="cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-address-2 js-form-item-officers-0-content-address-2">
+                                                                                    <label for="edit-officers-0-content-address-2">Address Line 2</label>
+                                                                                    <input data-drupal-selector="edit-officers-0-content-address-2" type="text" id="edit-officers-0-content-address-2" name="string_array_temp0[14]" value="" size="60" maxlength="128" placeholder="E.G. SOHO1 CENTRAL Nigerian" class="form-text edit-officers-0-content-address-2">
+
+                                                                                </div>
+
+                                                                            </div><div class="large-4 medium-4 cell">
+
+                                                                                <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-postal-code js-form-item-officers-0-content-postal-code">
+                                                                                    <label for="edit-officers-0-content-postal-code">Postal Code</label>
+                                                                                    <input data-drupal-selector="edit-officers-0-content-postal-code" type="text" id="edit-officers-0-content-postal-code" name="string_array_temp0[15]" value="" size="60" maxlength="10" placeholder="059817" class="form-text edit-officers-0-content-postal-code">
+
+                                                                                </div>
+
+                                                                            </div><div class="large-4 medium-4 cell sgf-input-phone">
+
+                                                                                <div class="js-form-item form-item js-form-type-textfield form-item-officers-0-content-workphone js-form-item-officers-0-content-workphone">
+                                                                                    <label for="edit-officers-0-content-workphone">Work Phone</label>
+                                                                                    <input data-drupal-selector="edit-officers-0-content-workphone" type="text" id="edit-officers-0-content-workphone" name="string_array_temp0[16]" value="" size="60" maxlength="128" placeholder="E.G. +65 1234 5678" class="form-text edit-officers-0-content-workphone">
+
+                                                                                </div>
+
+                                                                            </div>
+                                                                            <div class="required-fields field-group-html-element cell sgf-step-5-upload-file">
+                                                                                <span role="button" aria-controls="edit-officers-0-content-residential-address-wrapper" aria-expanded="true" aria-pressed="true">Proof Of Identification</span>
+                                                                                <div id="ajax-wrapper--2">
+
+                                                                                    <div class="js-form-item form-item js-form-type-managed-file form-item-officers-0-content-residential-address-wrapper-residential-address js-form-item-officers-0-content-residential-address-wrapper-residential-address">
+
+                                                                                        <div class="sgf-choose-file-hidden">
+                                                                                            <div id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" class="js-form-managed-file form-managed-file">
+                                                                                                <input multiple="multiple" required="required" type="file" id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" name="File1" size="22" class="js-form-file form-file">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                                <span role="button" aria-controls="edit-officers-0-content-residential-address-wrapper" aria-expanded="true" aria-pressed="true">Certificate of Birth (If officer is an infant)</span>
+                                                                                <div id="ajax-wrapper--2">
+
+                                                                                    <div class="js-form-item form-item js-form-type-managed-file form-item-officers-0-content-residential-address-wrapper-residential-address js-form-item-officers-0-content-residential-address-wrapper-residential-address">
+
+                                                                                        <div class="sgf-choose-file-hidden">
+                                                                                            <div id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" class="js-form-managed-file form-managed-file">
+                                                                                                <input multiple="multiple" type="file" id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" name="File2" size="22" class="js-form-file form-file">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <span role="button" aria-controls="edit-officers-0-content-residential-address-wrapper" aria-expanded="true" aria-pressed="true">Certificate of Proficiency (not required)</span>
+                                                                                <div id="ajax-wrapper--2">
+
+                                                                                    <div class="js-form-item form-item js-form-type-managed-file form-item-officers-0-content-residential-address-wrapper-residential-address js-form-item-officers-0-content-residential-address-wrapper-residential-address">
+
+                                                                                        <div class="sgf-choose-file-hidden">
+                                                                                            <div id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" class="js-form-managed-file form-managed-file">
+                                                                                                <input multiple="multiple" type="file" id="edit-officers-0-content-residential-address-wrapper-residential-address-upload" name="File3" size="22" class="js-form-file form-file">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                </div>
+
+                                                <input class="secondary float-left margin-top-2 text-center margin-bottom-1 button js-form-submit form-submit edit-actions-back" data-drupal-selector="edit-actions-back" type="submit" id="edit-actions-back" name="op" value="Back">
+                                                <input type="submit" class="secondary float-right margin-top-2 text-center margin-bottom-1 button button--primary js-form-submit form-submit edit-next" id="edit-next" value="Next">
+
+
+                                            </div>
+
+                                            <div class="large-4 medium-12 cell billingTable">
+                                                <div class="billing-fix">
+                                                    <h3 class="thin-text text-center">Order Details</h3>
+                                                    <div class="table-wraped gray-bg width-100">
+                                                        <div class="hide">
+
+                                                            <div class="js-form-item form-item js-form-type-textfield form-item-total js-form-item-total">
+                                                                <label for="edit-total" class="form-required">Total</label>
+                                                                <input data-drupal-selector="edit-total" type="text" id="edit-total" name="total" value="388.00" size="60" maxlength="128" class="form-text required edit-total" required="required" aria-required="true">
+
+                                                            </div>
+
+                                                        </div><table class="gray-bg unstriped">
+                                                            <tbody>
+                                                                <tr class="package-name p-s-item package-232" data-package-id="232">
+                                                                    <td width="300" class=" title ">
+                                                                        @Model.string_var0
+                                                                        <a href="~/Dashboard/packages" class="small-text text-underline" data-toggle="modal" data-target="#sgf-incorporate-packages-popup" tabindex="0">Edit</a>
+                                                                    </td>
+                                                                    <td width="90" class="text-right value">@Model.string_var1</td>
+                                                                </tr>
+                                                                <tr class="service-nameA" hidden>
+                                                                    <td colspan="2" class="semibold">Add-on Services</td>
+                                                                </tr>
+                                                                <tr class="service-nameD" hidden>
+                                                                    <td class="semibold">Nominee Director (1yr)</td>
+                                                                    <td class="text-right value">@Model.string_var3</td>
+                                                                </tr>
+                                                                <tr class="sgf-additional-total-row">
+                                                                    <td class="semibold">Total Amount</td>
+                                                                    <td class="semibold text-right total-price">@Model.string_var2</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end card-body-->
+                    </div>
+                    <!--end card-->
+                </div>
+                <!--end col-->
+            </div>
+            <!--end row-->
+        </div>
+        <!-- container -->
+        <footer class="footer text-center text-sm-left">&copy; @DateTime.Now.Year <span class="text-muted d-none d-sm-inline-block float-right">Crafted with <i class="mdi mdi-heart text-danger"></i> by BloydIntelligi</span></footer>
+        <!--end footer-->
+    </div>
+
+    @Html.HiddenFor(m => m.string_array_temp0[0])
+    @Html.HiddenFor(m => m.string_array_temp0[1])
+    @Html.HiddenFor(m => m.string_array_temp0[2])
+    @Html.HiddenFor(m => m.string_array_temp0[3])
+    @Html.HiddenFor(m => m.string_array_temp0[4])
+    @Html.HiddenFor(m => m.string_array_temp0[5])
+    @Html.HiddenFor(m => m.string_array_temp0[6])
+    @Html.HiddenFor(m => m.string_array_temp0[7])
+    @Html.HiddenFor(m => m.string_array_temp0[8])
+    @Html.HiddenFor(m => m.string_array_temp0[9])
+    @Html.HiddenFor(m => m.string_array_temp0[10])
+    @Html.HiddenFor(m => m.string_array_temp0[11])
+    @Html.HiddenFor(m => m.string_array_temp0[12])
+    @Html.HiddenFor(m => m.string_array_temp0[13])
+    @Html.HiddenFor(m => m.string_array_temp0[14])
+    @Html.HiddenFor(m => m.string_array_temp0[15])
+    @Html.HiddenFor(m => m.string_array_temp0[16])
+    @Html.HiddenFor(m => m.string_array_temp0[17])
+    @Html.HiddenFor(m => m.string_array_temp0[18])
+    @Html.HiddenFor(m => m.string_array_temp0[19])
+    @Html.HiddenFor(m => m.string_array_temp0[20])
+    @Html.HiddenFor(m => m.string_array_temp0[21])
+    @Html.HiddenFor(m => m.string_array_temp0[22])
+    @Html.HiddenFor(m => m.string_array_temp0[23])
+    @Html.HiddenFor(m => m.string_array_temp0[24])
+    @Html.HiddenFor(m => m.string_array_temp0[25])
+    @Html.HiddenFor(m => m.string_array_temp0[26])
+    @Html.HiddenFor(m => m.string_array_temp0[27])
+    @Html.HiddenFor(m => m.string_array_temp0[28])
+    @Html.HiddenFor(m => m.string_array_temp0[29])
+    <!-- end page content -->
+</form>
+<partial name="_SpinnerView" />
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            var data = document.getElementById("edit-term-and-condition").checked;
+            $('input id="edit-term-and-condition"]').click(function () {
+                alert(data);
+                if (data)
+                    document.getElementById(id).style.display = "block"
+                else
+                    document.getElementById(id).style.display = "block"
+                return false;
+            });
+        });
+    </script>
+}
