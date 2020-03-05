@@ -1,4 +1,4 @@
-﻿@model NaijaStartupApp.Models.NsuVariables.TemporaryVariables
+﻿@model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
 @{
     ViewData["Title"] = "AdminSignUp";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
@@ -60,7 +60,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <button class="btn btn-danger btn-sm text-light px-4 mt-3 float-right mb-0 ml-2">Cancel</button>
+                                    <a class="btn btn-danger btn-sm text-light px-4 mt-3 float-right mb-0 ml-2" href="/Account/all_admin">Cancel</a>
                                     <button type="submit" id="id_submit" class="btn btn-primary btn-sm text-light px-4 mt-3 float-right mb-0">Submit</button>
                                 </div>
                             </form>

@@ -66,7 +66,7 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User == user && s.IsTicket == false && s.Group.ToLower()=="bankaccounts").OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower()=="bankaccounts").OrderByDescending(m => m.CreationTime).ToList();
             if (user.Role.ToLower().Equals("admin"))
                 chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == "bankaccounts").OrderByDescending(m => m.CreationTime).ToList();
             foreach (var item in chats)
@@ -120,18 +120,19 @@ namespace NaijaStartupWeb.Controllers
                 }
                 temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
                 await _context.SaveChangesAsync();
+
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
 
-            if (user.Role.ToLower().Equals("admin"))
-            {
-                var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
-
-            }
-            else
-            {
-                await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-            }
             temp.string_var11 = "post_incop";
             return View(temp);
         }
@@ -192,7 +193,7 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User == user && s.IsTicket == false && s.Group.ToLower() == "statutory").OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == "statutory").OrderByDescending(m => m.CreationTime).ToList();
             if (user.Role.ToLower().Equals("admin"))
                 chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == "statutory").OrderByDescending(m => m.CreationTime).ToList();
             foreach (var item in chats)
@@ -246,18 +247,19 @@ namespace NaijaStartupWeb.Controllers
                 }
                 temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
                 await _context.SaveChangesAsync();
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
 
-            if (user.Role.ToLower().Equals("admin"))
-            {
-                var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
-
-            }
-            else
-            {
-                await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-            }
+            
             temp.string_var11 = "statutory";
             return View("post_incop", temp);
         }
@@ -321,7 +323,7 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User == user && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
             if (user.Role.ToLower().Equals("admin"))
                 chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
             foreach (var item in chats)
@@ -375,6 +377,16 @@ namespace NaijaStartupWeb.Controllers
                 }
                 temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
                 await _context.SaveChangesAsync();
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
 
 
@@ -450,7 +462,7 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User == user && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
             if (user.Role.ToLower().Equals("admin"))
                 chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
             foreach (var item in chats)
@@ -504,6 +516,16 @@ namespace NaijaStartupWeb.Controllers
                 }
                 temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
                 await _context.SaveChangesAsync();
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
 
 
@@ -1606,7 +1628,7 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).Where(s => s.IsDeleted == false && s.User == user && s.IsTicket).OrderByDescending(m=>m.CreationTime).ToList();
+            var chats = _context.ChatHeader.Include(x => x.ChatThread).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket).OrderByDescending(m=>m.CreationTime).ToList();
             if (user.Role.ToLower().Equals("admin"))
             chats = _context.ChatHeader.Include(x => x.ChatThread).Where(s => s.IsDeleted == false && s.IsTicket).OrderByDescending(m => m.CreationTime).ToList();
             foreach (var item in chats)

@@ -91,8 +91,10 @@ namespace NaijaStartupWeb.Controllers
         }
         public ActionResult all_admin()
         {
-            return View(_context.User.Where((x => x.Role=="Admin"))
-                .Select(x => new TemporaryVariables
+            var admins = _context.User.Where(x => x.Role == "Admin").ToList();
+            if (admins == null) return View();
+
+            return View(admins.Select(x => new TemporaryVariables
                 {
                     string_var0 = string.IsNullOrWhiteSpace(x.FirstName)?"": x.FirstName,
                     string_var1 = string.IsNullOrWhiteSpace(x.LastName) ? "" : x.LastName,

@@ -26,7 +26,7 @@
             {
                 if (item.User.ToLower() == "admin")
                 {
-                    @if (!string.IsNullOrWhiteSpace(item.documents))
+                    if (!string.IsNullOrWhiteSpace(item.documents))
                     {
                         <div class="media">
                             <div class="media-img"><img src="~/assets/images/users/patient-pro.png" alt="user" class="rounded-circle thumb-md"></div>
@@ -55,7 +55,7 @@
                 }
                 else
                 {
-                    @if (!string.IsNullOrWhiteSpace(item.documents))
+                    if (!string.IsNullOrWhiteSpace(item.documents))
                     {
                         <div class="media">
                             <div class="media-body reverse">

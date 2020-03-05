@@ -1,4 +1,4 @@
-﻿@model IEnumerable<NaijaStartupApp.Models.NsuVariables.TemporaryVariables>
+﻿@model IEnumerable<NaijaStartupWeb.Models.NsuVariables.TemporaryVariables>
 @{
     ViewData["Title"] = "all_admin";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
@@ -22,7 +22,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <a class="btn btn-primary px-4 mt-0 mb-3" asp-area="" asp-controller="Account" asp-action="AdminSignUp"><i class="mdi mdi-plus-circle-outline mr-2"></i>Add New Member</a>
+                        <a class="btn btn-primary px-4 mt-0 mb-3" href="/Account/AdminSignUp"><i class="mdi mdi-plus-circle-outline mr-2"></i>Add New Member</a>
                         <div class="table-responsive">
                             <table id="datatable" class="table">
                                 <thead class="thead-light">

@@ -710,8 +710,10 @@
                 url: "/Account/Index",
                 data: { "username": val1, "password": val2, "rememberMe": val3 },
                 success: function (data) {
-                    if (data=true)
+                    
+                    if (data == "True") {
                         window.location.href = "/Dashboard/Index";
+                    }
                     else {
                         alert("Invalid username or password")
                         $(".se-pre-con").fadeOut("slow");
@@ -762,8 +764,9 @@
                 url: "/Account/checkSession",
                 data: { companyName: company },
                 success: function (data) {
-                    if (data=true)
+                    if (data == "True") {
                         window.location.href = "/Dashboard/new_company";
+                    }
                     else {
                         $(".modal").modal();
                     }
@@ -780,8 +783,9 @@
                 url: "/Account/checkSession",
                 data: { companyName: company },
                 success: function (data) {
-                    if (data=true)
+                    if (data == "True") {
                         window.location.href = "/Dashboard/new_company";
+                    }
                     else {
                         $(".modal").modal();
                     }
