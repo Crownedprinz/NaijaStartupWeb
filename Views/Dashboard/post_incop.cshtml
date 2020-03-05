@@ -1,11 +1,9 @@
 ﻿@model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
-@using Microsoft.AspNetCore.Http;
 @using NaijaStartupWeb.Helpers;
-@inject IHttpContextAccessor hcontext
 @{
     ViewData["Title"] = "Bank Accounts";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
-    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = hcontext.HttpContext.Session.GetObject<NaijaStartupWeb.Models.NsuVariables.GlobalVariables>("GlobalVariables");
+    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = (NaijaStartupWeb.Models.NsuVariables.GlobalVariables)Session["GlobalVariables"];
 
 }
 <!-- Page Content-->
@@ -38,20 +36,20 @@
                     @if (_globalVariables.RoleId.ToLower() != "admin")
                     {
                         <div class="col-12">
-                            @await Html.PartialAsync("_postIncorporationPane", Model)
+                            @Html.Partial("_postIncorporationPane", Model)
                             <!--end chat-box-left -->
-                            @await Html.PartialAsync("_postIncorporation", Model)
+                            @Html.Partial("_postIncorporation", Model)
                             <!--end chat-box-right -->
                         </div>
                     }
                     else
                     {
-                        <div class="col-12">
-                            @await Html.PartialAsync("_postIncorporationPaneAdmin", Model)
-                            <!--end chat-box-left -->
-                            @await Html.PartialAsync("_postIncorporationAdmin", Model)
-                            <!--end chat-box-right -->
-                        </div>
+                <div class="col-12">
+                    @Html.Partial("_postIncorporationPaneAdmin", Model)
+                    <!--end chat-box-left -->
+                    @Html.Partial("_postIncorporationAdmin", Model)
+                    <!--end chat-box-right -->
+                </div>
                     }
                     <!-- end col -->
                 </div>

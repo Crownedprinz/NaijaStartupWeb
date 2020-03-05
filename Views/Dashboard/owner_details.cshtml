@@ -1,11 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @using NaijaStartupWeb.Helpers;
-@inject IHttpContextAccessor hcontext
 @model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
 @{
     ViewData["Title"] = "owner_details";
     Layout = "~/Views/Shared/_CompanyLayout.cshtml";
-    NaijaStartupWeb.Models.NsuVariables.TemporaryVariables _temporaryVariables = hcontext.HttpContext.Session.GetObject<NaijaStartupWeb.Models.NsuVariables.TemporaryVariables>("TemporaryVariables");
+    NaijaStartupWeb.Models.NsuVariables.TemporaryVariables _temporaryVariables = (NaijaStartupWeb.Models.NsuVariables.TemporaryVariables)Session["TemporaryVariables"];
 
 }
 <!-- Page Content-->

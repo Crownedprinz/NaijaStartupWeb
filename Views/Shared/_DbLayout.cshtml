@@ -1,0 +1,241 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using NaijaStartupWeb.Helpers;
+@{
+    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = (NaijaStartupWeb.Models.NsuVariables.GlobalVariables)Session["GlobalVariables"];
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - NaijaStartupWeb</title>
+    <meta content="Mannatthemes" name="author">
+
+    <environment include="Development,Staging,Production">
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="~/assets/images/favicon.ico">
+        <link href="~/assets/plugins/bootstrap-datepicker/bootstrap-datepicker.css" rel="stylesheet" type="text/css">
+        <!-- DataTables -->
+        <link href="~/assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+        <link href="~/assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css">
+        <!-- Responsive datatable examples -->
+        <link href="~/assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css">
+        <!-- App css -->
+        <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="~/assets/css/icons.css" rel="stylesheet" type="text/css">
+        <link href="~/assets/css/metisMenu.min.css" rel="stylesheet" type="text/css">
+        <link href="~/assets/css/style.css" rel="stylesheet" type="text/css">
+        <link href="~/assets/css/spin.css" type="text/css">
+        <link href="~/assets/css/jquery-ui.min.css" rel="stylesheet" />
+    </environment>
+
+    <environment exclude="Development,Staging,Production">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/assets/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+    </environment>
+</head>
+<body>
+    <!-- Top Bar Start -->
+    <div class="topbar">
+        <!-- LOGO -->
+        <div class="topbar-left">
+            <a href="https://mannatthemes.com/metrica/hospital-vertical/projects/projects-index.html" class="logo">
+                <span><img src="~/assets/images/logo-sm.png" alt="logo-small" class="logo-sm"> </span><span>
+                </span>
+            </a>
+        </div><!--end logo-->
+        <!--end logo-->
+        <nav class="navbar-custom">
+            <ul class="list-unstyled topbar-nav float-right mb-0">
+                <li class="hidden-sm">
+                </li>
+                <li class="dropdown notification-list">
+                    <div class="dropdown-menu dropdown-menu-right dropdown-lg">
+                        <!-- item-->
+                        <h6 class="dropdown-item-text"></h6>
+                        <div class="slimscroll notification-list">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item active">
+                            </a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            </a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            </a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            </a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            </a>
+                        </div>
+                        <!-- All--><a href="javascript:void(0);" class="dropdown-item text-center text-primary">View all <i class="fi-arrow-right"></i></a>
+                    </div>
+                </li>
+                <li class="hidden-sm">
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="javascript: void(0);">
+                            <span>German </span><img src="~/assets/images/flags/germany_flag.jpg" alt="" class="ml-2 float-right" height="14">
+                        </a><a class="dropdown-item" href="javascript: void(0);"><span>Italian </span><img src="~/assets/images/flags/italy_flag.jpg" alt="" class="ml-2 float-right" height="14"></a><a class="dropdown-item" href="javascript: void(0);"><span>French </span><img src="~/assets/images/flags/french_flag.jpg" alt="" class="ml-2 float-right" height="14"></a><a class="dropdown-item" href="javascript: void(0);"><span>Spanish </span><img src="~/assets/images/flags/spain_flag.jpg" alt="" class="ml-2 float-right" height="14"></a><a class="dropdown-item" href="javascript: void(0);"><span>Russian </span><img src="~/assets/images/flags/russia_flag.jpg" alt="" class="ml-2 float-right" height="14"></a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false"><img src="~/assets/images/users/patient-pro.png" alt="profile-user" class="rounded-circle"> <span class="ml-1 nav-user-name hidden-sm">@_globalVariables.userName<i class="mdi mdi-chevron-down"></i></span></a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" asp-area="" href="/Account/Profile"><i class="dripicons-user text-muted mr-2"></i> Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-area="" href="/Account/LogOff"><i class="dripicons-exit text-muted mr-2"></i> Logout</a>
+                    </div>
+                </li>
+            </ul>
+            <!--end topbar-nav-->
+            <ul class="list-unstyled topbar-nav mb-0">
+                <li><button class="button-menu-mobile nav-link waves-effect waves-light"><i class="dripicons-menu nav-icon"></i></button></li>
+            </ul>
+        </nav>
+        <!-- end navbar-->
+    </div>
+    <!-- Top Bar End -->
+
+    <div class="page-wrapper">
+        <!-- Left Sidenav -->
+        <div class="left-sidenav">
+            <div class="main-icon-menu">
+                <nav class="nav">
+                </nav>
+                <!--end nav-->
+            </div>
+            <!--end main-icon-menu-->
+            <div class="main-menu-inner">
+                <div class="menu-body slimscroll">
+                    <div id="MetricaHospital" class="main-icon-menu-pane">
+                        @if (_globalVariables.RoleId != "Admin")
+                        {
+
+                            <div class="title-box">
+                                <h6 class="menu-title">Company</h6>
+                            </div>
+                            <ul class="nav metismenu">
+                                <li></li>
+                                <li class="nav-item"><a class="nav-link" href="/Dashboard/Index" ><i class="dripicons-meter"></i>Dashboard</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Services</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/all_companies">Registered Companies</a></li>
+                                        <li><a href="/Dashboard/unconfirmed_companies">Unregistered Companies</a></li>
+                                    </ul>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/all_payments">All Payments</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Post-Incorporation Requests</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/post_incop">Bank Account Requests</a></li>
+                                        <li><a href="/Dashboard/statutory">Statutory Advisory</a></li>
+                                        <li><a href="/Dashboard/officelease">Office Space and Lease</a></li>
+                                        <li><a href="/Dashboard/cacchange">CAC Ammendments Requests</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" href="/Dashboard/chat"><i class="dripicons-conversation"></i>Tickets</a></li>
+
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="title-box">
+                                <h6 class="menu-title">Administration</h6>
+                            </div>
+                            <ul class="nav metismenu">
+                                <li></li>
+                                <li class="nav-item"><a class="nav-link" href="/Dashboard/Index"><i class="dripicons-meter"></i>Dashboard</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Manage Companies</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/admin_companies">CompaniesToApprove</a></li>
+                                        <li><a href="/Dashboard/unconfirmed_companies">CompaniesToConfirm</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Admin Management</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Account/AdminSignUp" >Add New Admin</a></li>
+                                    </ul>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Account/all_admin">All Admins</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Settings Management</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/Incentives">Incentives</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="dripicons-clipboard"></i><span class="w-100">Post-Incorporation Requests</span><span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+                                    <ul class="nav-second-level" aria-expanded="false">
+                                        <li><a href="/Dashboard/post_incop" >Bank Account Requests</a></li>
+                                        <li><a href="/Dashboard/statutory" >Statutory Advisory</a></li>
+                                        <li><a href="/Dashboard/officelease">Office Space and Lease</a></li>
+                                        <li><a href="/Dashboard/cacchange" >CAC Ammendments Requests</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item"><a class="nav-link" href="/Dashboard/chat" ><i class="dripicons-conversation"></i>Tickets</a></li>
+                             </ul>
+                        }
+
+                        <!--end nav-->
+                    </div>
+                    <!-- end Hospital -->
+                </div>
+                <!--end menu-body-->
+            </div>
+            <!-- end main-menu-inner-->
+        </div>
+        <!-- end left-sidenav-->
+        <!-- Page Content-->
+        @RenderBody()
+    </div>
+
+    <environment include="Development,Staging,Production">
+        <!-- jQuery  -->
+        <script src="~/assets/js/jquery.min.js"></script>
+        <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+        <script src="~/assets/js/bootbox.min.js"></script>
+        <script src="~/assets/js/metisMenu.min.js"></script>
+        <script src="~/assets/js/waves.min.js"></script>
+        <script src="~/assets/js/jquery.slimscroll.min.js"></script>
+        <script src="~/assets/plugins/apexcharts/apexcharts.min.js"></script>
+        <script src="~/assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+        <script src="~/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+        <script src="~/assets/plugins/datatables/dataTables.bootstrap4.min.js"></script>
+        <script src="~/assets/pages/jquery.hospital_dashboard.init.js"></script>
+        <!-- App js -->
+        <script src="~/assets/js/app.js"></script>
+        <script src="~/assets/js/spin.js"></script>
+        <script src="~/assets/js/spinCustom.js"></script>
+        <script src="~/assets/js/puscript.js"></script>
+        <script src="~/assets/js/jquery-ui-1.12.1.js"></script>
+    </environment>
+    <environment exclude="Development,Staging,Production">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                asp-fallback-src="~/assets/js/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+                asp-fallback-src="~/assets/js/bootstrap.bundle.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o">
+        </script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

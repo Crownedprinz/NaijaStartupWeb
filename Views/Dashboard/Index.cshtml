@@ -1,11 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @using NaijaStartupWeb.Helpers;
 @model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
-@inject IHttpContextAccessor hcontext
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
-    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = hcontext.HttpContext.Session.GetObject<NaijaStartupWeb.Models.NsuVariables.GlobalVariables>("GlobalVariables");
+    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = (NaijaStartupWeb.Models.NsuVariables.GlobalVariables)Session["GlobalVariables"];
 
 }
 
@@ -53,7 +52,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Companies</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="all_companies">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/all_companies">view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-registered rounded-circle text-danger"></i></div>
@@ -72,7 +71,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Pending Tasks</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="unconfirmed_companies">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/unconfirmed_companies" >view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-tasks rounded-circle text-warning"></i></div>
@@ -92,7 +91,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Tickets</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="chat">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/chat">view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-ticket-alt rounded-circle text-success"></i></div>
@@ -163,7 +162,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Companies</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="admin_companies">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/admin_companies">view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-registered rounded-circle text-danger"></i></div>
@@ -182,7 +181,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Pending Tasks</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="unconfirmed_companies">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/unconfirmed_companies" >view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-tasks rounded-circle text-warning"></i></div>
@@ -202,7 +201,7 @@
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between">
                                                     <div><h4 class="header-title mt-0 mb-3">Tickets</h4></div>
-                                                    <div><a class="btn-sm btn-danger" asp-controller="Dashboard" asp-action="chat">view</a></div>
+                                                    <div><a class="btn-sm btn-danger" href="/Dashboard/chat">view</a></div>
                                                 </div>
                                                 <div class="media">
                                                     <div class="data-icon align-self-center"><i class="fas fa-ticket-alt rounded-circle text-success"></i></div>
@@ -231,7 +230,7 @@
         }
     </div>
     <!-- container -->
-    <footer class="footer text-center text-sm-left">&copy; 2019 BloydIntelligi <span class="text-muted d-none d-sm-inline-block float-right">Crafted with <i class="mdi mdi-heart text-danger"></i> by bloydintelligi</span></footer>
+    <footer class="footer text-center text-sm-left">&copy; @DateTime.Now.Year BloydIntelligi <span class="text-muted d-none d-sm-inline-block float-right">Crafted with <i class="mdi mdi-heart text-danger"></i> by bloydintelligi</span></footer>
     <!--end footer-->
 </div>
 <!-- end page content -->

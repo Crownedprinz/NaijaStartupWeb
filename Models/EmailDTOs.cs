@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,6 +24,18 @@ namespace NaijaStartupWeb.Models
 
         public class EmailConfiguration : IEmailConfiguration
         {
+            public EmailConfiguration()
+            {
+                SmtpServer = ConfigurationManager.AppSettings["SmtpServer"];
+                SmtpPort = int.Parse(ConfigurationManager.AppSettings["SmtpPort"]);
+                SmtpUsername = ConfigurationManager.AppSettings["SmtpUsername"];
+                SmtpPassword = ConfigurationManager.AppSettings["SmtpPassword"];
+                PopServer = ConfigurationManager.AppSettings["PopServer"];
+                PopPort = int.Parse(ConfigurationManager.AppSettings["PopPort"]);
+                PopUsername = ConfigurationManager.AppSettings["PopUsername"];
+                PopPassword = ConfigurationManager.AppSettings["PopPassword"];
+
+            }
             public string SmtpServer { get; set; }
             public int SmtpPort { get; set; }
             public string SmtpUsername { get; set; }

@@ -132,7 +132,7 @@
             url: "/Account/Index",
             data:{ "username": val1, "password": val2, "rememberMe":val3  },
             success: function (data) {
-                if (data) {
+                if (data=true) {
                      window.location.href = "/Dashboard/Index";
                 }
                 else

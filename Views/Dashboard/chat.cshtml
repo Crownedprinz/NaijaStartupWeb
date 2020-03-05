@@ -1,11 +1,10 @@
 ﻿@model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
 @using Microsoft.AspNetCore.Http;
 @using NaijaStartupWeb.Helpers;
-@inject IHttpContextAccessor hcontext
 @{
     ViewData["Title"] = "chat";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
-    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = hcontext.HttpContext.Session.GetObject<NaijaStartupWeb.Models.NsuVariables.GlobalVariables>("GlobalVariables");
+    NaijaStartupWeb.Models.NsuVariables.GlobalVariables _globalVariables = (NaijaStartupWeb.Models.NsuVariables.GlobalVariables)Session["GlobalVariables"];
 
 }
 <!-- Page Content-->
@@ -37,20 +36,20 @@
                 @if (_globalVariables.RoleId.ToLower() != "admin")
                 {
                     <div class="col-12">
-                        @await Html.PartialAsync("_chatPane", Model)
+                        @Html.Partial("_chatPane", Model)
                         <!--end chat-box-left -->
-                        @await Html.PartialAsync("_chatBox", Model)
+                        @Html.Partial("_chatBox", Model)
                         <!--end chat-box-right -->
                     </div>
                 }
                 else
                 {
-                    <div class="col-12">
-                        @await Html.PartialAsync("_chatAdminPane", Model)
-                        <!--end chat-box-left -->
-                        @await Html.PartialAsync("_chatAdminBox", Model)
-                        <!--end chat-box-right -->
-                    </div>
+            <div class="col-12">
+                @Html.Partial("_chatAdminPane", Model)
+                <!--end chat-box-left -->
+                @Html.Partial("_chatAdminBox", Model)
+                <!--end chat-box-right -->
+            </div>
                 }
                 <!-- end col -->
             </div>

@@ -10,7 +10,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
 
-    <link href="custom/css/font-awe some.css" rel="stylesheet">
+    <link href="custom/css/font-awesome.css" rel="stylesheet">
 
     <link href="custom/css/hosting.css" rel="stylesheet" media="all">
     <link href="custom/css/loadingicon.css" rel="stylesheet">
@@ -603,7 +603,7 @@
             </div>
             <div class="row copyright">
                 <div class="pull-right"><img src="custom/images/logo-footer.png" alt="logo"></div>
-                <p>Copyright &copy; 2019. Naija-Startup Ltd</p>
+                <p>Copyright &copy; <script>document.write(new Date().getFullYear());</script>. Naija-Startup Ltd</p>
             </div>
         </div>
     </div>
@@ -710,7 +710,7 @@
                 url: "/Account/Index",
                 data: { "username": val1, "password": val2, "rememberMe": val3 },
                 success: function (data) {
-                    if (data)
+                    if (data=true)
                         window.location.href = "/Dashboard/Index";
                     else {
                         alert("Invalid username or password")
@@ -762,7 +762,7 @@
                 url: "/Account/checkSession",
                 data: { companyName: company },
                 success: function (data) {
-                    if (data)
+                    if (data=true)
                         window.location.href = "/Dashboard/new_company";
                     else {
                         $(".modal").modal();
@@ -780,7 +780,7 @@
                 url: "/Account/checkSession",
                 data: { companyName: company },
                 success: function (data) {
-                    if (data)
+                    if (data=true)
                         window.location.href = "/Dashboard/new_company";
                     else {
                         $(".modal").modal();
