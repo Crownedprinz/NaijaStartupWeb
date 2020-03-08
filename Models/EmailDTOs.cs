@@ -34,6 +34,7 @@ namespace NaijaStartupWeb.Models
                 PopPort = int.Parse(ConfigurationManager.AppSettings["PopPort"]);
                 PopUsername = ConfigurationManager.AppSettings["PopUsername"];
                 PopPassword = ConfigurationManager.AppSettings["PopPassword"];
+                IsSsl = Convert.ToBoolean(ConfigurationManager.AppSettings["IsSsl"]);
 
             }
             public string SmtpServer { get; set; }
@@ -45,6 +46,7 @@ namespace NaijaStartupWeb.Models
             public int PopPort { get; set; }
             public string PopUsername { get; set; }
             public string PopPassword { get; set; }
+            public bool IsSsl { get; set; }
         }
 
         public class EmailAddress

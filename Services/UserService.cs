@@ -18,6 +18,8 @@ using System.Web;
 using Microsoft.AspNet.Identity.Owin;
 using System.Configuration;
 using Microsoft.AspNet.Identity;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace NaijaStartupWeb.Services
 {
@@ -508,14 +510,16 @@ namespace NaijaStartupWeb.Services
                 //Be careful that the SmtpClient class is the one from Mailkit not the framework!
                 using (var emailClient = new SmtpClient())
                 {
+                    ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
+
                     //The last parameter here is to use SSL (Which you should!)
-                    emailClient.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort, true);
+                    emailClient.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort);
 
                     //Remove any OAuth functionality as we won't be using it. 
                     emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
 
                     emailClient.Authenticate(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
-
+                     
                     emailClient.Send(message);
 
                     emailClient.Disconnect(true);
