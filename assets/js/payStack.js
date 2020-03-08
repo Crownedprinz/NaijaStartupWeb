@@ -13,12 +13,24 @@
             var obj = JSON.parse(json);
             key = obj.parameter;
             if (key === "" || key === null)
-                return alert('Invalid Paystack Key passed');
+                return swal({
+                    title: "Invalid Details!",
+                    text: "Invalid Paystack Key passed!",
+                    icon: "error"
+                });
             if (!data)
-                return alert('Please make sure you check all boxes required');
-            var data1 = document.getElementById("edit-term-and-condition").checked;
+                return swal({
+                    title: "Invalid Details!",
+                    text: "Please make sure you check all boxes required!",
+                    icon: "error"
+                });
+            var data1 =  document.getElementById("edit-term-and-condition").checked;
             if (!data1)
-                return alert('Please make sure you check all boxes required');
+                return swal({
+                    title: "Invalid Details!",
+                    text: "Please make sure you check all boxes required!",
+                    icon: "error"
+                });
             var handler = PaystackPop.setup({
                 key: key, //put your public key here
                 email: email, //put your customer's email here
@@ -42,24 +54,45 @@
                         url: "/Dashboard/Verify_PayStack",
                         data: { "reference": response.reference },
                         success: function (data) {
-                            if (data) {
-                                alert('Transaction was successful');
+                            if (data == "True") {
+                                swal({
+                                    title: "Successful Transaction!",
+                                    text: "Transaction was successful",
+                                    icon: "success"
+                                });
                                 window.location.href = "/Dashboard/all_companies";
                             }
                             else {
-                                alert(response);
+                                 swal({
+                                    title: "Invalid Details!",
+                                    text: response,
+                                    icon: "error"
+                                });
 
                             }
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            alert(xhr.status);
-                            alert(thrownError);
+                            swal({
+                                title: "Invalid Details!",
+                                text: xhr.status,
+                                icon: "error"
+                            });
+                            swal({
+                                title: "Invalid Details!",
+                                text: thrownError,
+                                icon: "error"
+                            });
                         }
                     });
                 },
                 onClose: function () {
                     //when the user close the payment modal
-                    alert('Transaction cancelled');
+                    swal({
+                        title: "Invalid Details!",
+                        text: "Transaction cancelled",
+                        icon: "error"
+                    });
+                    alet('Transaction cancelled');
                 }
             });
             handler.openIframe(); 

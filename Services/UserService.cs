@@ -31,7 +31,7 @@ namespace NaijaStartupWeb.Services
         Task<User> get_User_By_Session();
         Task<bool> UserExists(string Id);
         Task<User> get_admin_user(string Id);
-        Task<User> get_customer(string Id);
+        User get_customer(string Id);
         Task<string> get_name(string Id);
         Task<bool> IsUserCustomer(string Id);
         Task<bool> IsUserAdmin(string Id);
@@ -241,9 +241,12 @@ namespace NaijaStartupWeb.Services
 
         }
 
-        public async Task<User> get_customer(string user)
+
+        public User get_customer(string user)
         {
-            return _context.User.Where(x => x.Id == user && x.IsDeleted == false && x.Role.ToLower() == "user").FirstOrDefault();
+            var users = _context.User.Where(x => x.Id == user && x.IsDeleted == false).FirstOrDefault();
+            if (users == null) return new User();
+            return users;
         }
         public async Task<bool> UserExists(string Id)
         {

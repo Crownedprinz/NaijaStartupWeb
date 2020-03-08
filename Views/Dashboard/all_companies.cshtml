@@ -57,13 +57,13 @@
                                                 if (item.bool_var2)
                                                 {
                                                     <td class="text-right">
-                                                        @Html.ActionLink("", "view_company", new { Id = @item.string_var3 }, new { @class = "fas fa-folder-open text-info font-16 mr-2" })
+                                                        @Html.ActionLink("S", "view_company", new { Id = @item.string_var3 }, new { @class = "fas fa-folder-open text-info font-16 mr-2" })
                                                     </td>
                                                 }
                                                 else
                                                 {
                                                     <td class="text-right">
-                                                        @Html.ActionLink("", "new_company", new { Id = @item.string_var3 }, new { @class = "mr-2 fas fa-edit text-info font-16" })
+                                                        @Html.ActionLink("A", "new_company", new { Id = @item.string_var3 }, new { @class = "mr-2 fas fa-edit text-info font-16" })
                                                     </td>
                                                 }
 
@@ -103,7 +103,7 @@
                 url: "/Dashboard/edit_companies",
                 data: { "Id": parameter },
                 success: function (data) {
-                    if (data) {
+                    if (data=="True") {
                         alert("Successful")
                         document.location.reload();
                     }
@@ -123,7 +123,7 @@
                 url: "/Dashboard/delete_companies",
                 data: { "Id": parameter },
                 success: function (data) {
-                    if (data) {
+                    if (data=="True") {
                         alert("Successful")
                         document.location.reload();
                     }

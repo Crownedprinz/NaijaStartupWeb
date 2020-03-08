@@ -12,9 +12,9 @@
     
 </head>
 <body>
-        <div class="se-pre-con"></div>
+    <div class="se-pre-con"></div>
     <div class="lgPage">
-        <div  class="form">
+        <div class="form">
             <div id="id_form" class="register-form">
                 <div class="panel-heading">
                     <b class="secure"> <a>Naija-Startup</a> - Sign Up</b><span><i class="fa fa-lock fa-2x  "></i></span>
@@ -42,10 +42,10 @@
                     <b class="secure"> <a>Naija-Startup</a> - Login</b><span class="pull-right"><i class="fa fa-lock fa-2x  "></i></span>
                 </div>
                 <div>
-                    <input type="text" name="user"  id="id_userName1"  value="" autocomplete="off" placeholder="Username" required>
+                    <input type="text" name="user" id="id_userName1" value="" autocomplete="off" placeholder="Username" required>
                 </div>
                 <div class="d-inline-flex">
-                    <input type="password"  id="id_password2"  name="pass" value="" autocomplete="off" placeholder="Password" required>
+                    <input type="password" id="id_password2" name="pass" value="" autocomplete="off" placeholder="Password" required>
                     <span toggle="#id_password2" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                 </div>
                 <button type="submit" class="btn btn-success btn-lg" onclick="loginPost()">Login</button>
@@ -58,29 +58,30 @@
                         </div>
                     </div>
                 </div>
-                <p class="message">Not Registered?  <a  href="#"  id="id_registerLink">Register here</a></p>
+                <p class="message">Not Registered?  <a href="#" id="id_registerLink">Register here</a></p>
             </div>
         </div>
     </div>
 
     <script src="custom/js/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
-    //paste this code under the head tag or in a separate js file.
-	// Wait for window load
-	$(window).load(function() {
-		// Animate loader off screen
-		$(".se-pre-con").fadeOut("slow");
+        //paste this code under the head tag or in a separate js file.
+        // Wait for window load
+        $(window).load(function () {
+            // Animate loader off screen
+            $(".se-pre-con").fadeOut("slow");
 
 
-    });
-    $("#id_signup").submit(function (event) {
+        });
+        $("#id_signup").submit(function (event) {
 
-        var isValid = $('#id_signup').valid();
-        if (isValid) {    
-            // Animate loader
-            $(".se-pre-con").fadeIn("slow");
-        }
-    });
+            var isValid = $('#id_signup').valid();
+            if (isValid) {
+                // Animate loader
+                $(".se-pre-con").fadeIn("slow");
+            }
+        });
 
 
     </script>
@@ -94,58 +95,69 @@
         });
         $("#id_registerLink").click(function () {
             document.getElementById("id_form").style.display = "block";
-             document.getElementById("login-form").style.display = "none";
+            document.getElementById("login-form").style.display = "none";
         });
 
 
-                    //TOGGLE PASSWORD VISIBILITY
-    $(".toggle-password").click(function() {
-        $(this).toggleClass("fa-eye fa-eye-slash");
+        //TOGGLE PASSWORD VISIBILITY
+        $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
             var input = $($(this).attr("toggle"));
             if (input.attr("type") == "password") {
-            input.attr("type", "text");
+                input.attr("type", "text");
             } else {
-        input.attr("type", "password");
-        }
+                input.attr("type", "password");
+            }
         });
 
 
 
         function loginPost() {
             $(".se-pre-con").fadeIn("slow");
-        var val3 = document.getElementById("id_rememberme").checked
-        var val1 = $('#id_userName1').val();
-        var val2 = $('#id_password2').val();
-        if (val1 === null || val1 === ""){
-                    alert("Please Input your username or email");
-                    $(".se-pre-con").fadeOut("slow");
-                    return;
-                }
+            var val3 = document.getElementById("id_rememberme").checked
+            var val1 = $('#id_userName1').val();
+            var val2 = $('#id_password2').val();
+            if (val1 === null || val1 === "") {
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your username or email!",
+                            icon: "error",
+                        });
+                $(".se-pre-con").fadeOut("slow");
+                return;
+            }
             if (val2 === null || val2 === "") {
-                alert("Please Input your password");
+                  swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your password!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
 
-        $.ajax({
-            type: "post",
-            url: "/Account/Index",
-            data:{ "username": val1, "password": val2, "rememberMe":val3  },
-            success: function (data) {
-                if (data == "True") {
-                    window.location.href = "/Dashboard/Index";
-                }
-                else
-                {
-                   alert("Invalid username or password")
-                             $(".se-pre-con").fadeOut("slow");
-                             return;
-                }
+            $.ajax({
+                type: "post",
+                url: "/Account/Index",
+                data: { "username": val1, "password": val2, "rememberMe": val3 },
+                success: function (data) {
+                    if (data == "True") {
+                        window.location.href = "/Dashboard/Index";
+                    }
+                    else {
+                        swal({
+                            title: "Invalid Details!",
+                            text: "Invalid username or password!",
+                            icon: "error",
+                        });
+                        $(".se-pre-con").fadeOut("slow");
+                        return;
+                    }
 
 
-            }
-        })
-    }
+                }
+            })
+        }
     </script>
 
     <script>
@@ -159,6 +171,7 @@
 
 
         function signUpPost() {
+            
             $(".se-pre-con").fadeIn("slow");
             var firstName = $('#id_firstName').val();
             var lastName = $('#id_lastName').val();
@@ -168,74 +181,119 @@
             var confirmpassword = $('#id_confirm_password').val();
             var confirmEmail = $('#id_confirm_email').val();
             if (firstName === null || firstName === "") {
-                alert("Please Input your First Name");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your First Name!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (lastName === null || lastName === "") {
-                alert("Please Input your Last Name");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your Last Name!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (Email === null || Email === "") {
-                return alert("Please Input your Email");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your Email!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (userName === null || userName === "") {
-                return alert("Please Input your userName");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your userName!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (password === null || password === "") {
-                alert("Please Input your password");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Input your password!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (confirmpassword === null || confirmpassword === "") {
-                return alert("Please Confrim your password");
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please Confrim your password!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
             if (confirmEmail === null || confirmEmail === "") {
-                alert("Please Confrim your Email");
+                 swal({
+                            title: "Invalid Details!",
+                            text: "Please Confrim your Email!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
 
-            if (confirmEmail !=Email) {
-                alert("Please make sure you confirm email matches your email");
+            if (confirmEmail != Email) {
+                swal({
+                            title: "Invalid Details!",
+                            text: "Please make sure you confirm email matches your email!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
 
             if (confirmpassword != password) {
-                alert("Please make sure you confirm password matches your password");
+                 swal({
+                            title: "Invalid Details!",
+                            text: "Please make sure you confirm password matches your password!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
 
 
             $.ajax({
-            type: "post",
-            url: "/Account/SignUp",
-            async: true,
-            data: { "firstName": firstName, "lastName": lastName, "email": Email, "username": userName, "password": password },
+                type: "post",
+                url: "/Account/SignUp",
+                async: true,
+                data: { "firstName": firstName, "lastName": lastName, "email": Email, "username": userName, "password": password },
                 success: function (data) {
                     var obj = JSON.stringify(data);
-                    var jsonObj = JSON.parse(obj.toString());
-                    if (jsonObj.isSuccessful) {
-                        alert("Successfully Registered, Please click the Login Button to Sign in");
+                    var jsonObj = JSON.parse(obj);
+                    var error = jsonObj.Error;
+                    if (jsonObj.IsSuccessful) {
+                         swal({
+                            title: "Great Job!",
+                            text: "Successfully Registered, Please click the Login Button to Sign in!",
+                            icon: "success",
+                        });
                         window.location.href = "/Index.html";
                     }
-                else {
-                    alert(jsonObj.error);
-                     $(".se-pre-con").fadeOut("slow");
-                    return;
+                    else {
+                        swal({
+                            title: "Invalid Details!",
+                            text: JSON.stringify(jsonObj.Error),
+                            icon: "error",
+                        });
+                        $(".se-pre-con").fadeOut("slow");
+                        return;
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
     </script>
 </body>
 </html>

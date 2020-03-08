@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NaijaStartupWeb.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NaijaStartupWeb.Data;
 using NaijaStartupWeb.Helpers;
 using Newtonsoft.Json;
 using PayStack.Net;
 using static NaijaStartupWeb.Models.NsuDtos;
 using static NaijaStartupWeb.Models.NsuVariables;
-using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Web.Mvc;
 using System.Web;
 using System.Configuration;
+using System.Data.Entity;
+using NaijaStartupWeb.Enum;
+using NaijaStartupWeb.Models;
+using System.Data.Entity.Core.Objects;
 
 namespace NaijaStartupWeb.Controllers
 {
     [UnauthorizedCustomFilter]
     public class DashboardController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IUserService _userService;
         private readonly ICompanyService _companyService;
         GlobalVariables _globalVariables;
         TemporaryVariables _temporaryVariables;
-        public DashboardController(ApplicationDbContext context,
+        public DashboardController(
             IUserService userService,
             ICompanyService companyService)
         {
-            _context = context;
             _userService = userService;
             _companyService = companyService;
         }
@@ -47,7 +46,7 @@ namespace NaijaStartupWeb.Controllers
             return View(temp);
         }
 
-         public async Task<ActionResult> post_incop(int Id)
+         public async Task<ActionResult> post_incop(string Id)
         {
             int count = 0;
             byte[] byteConvert = null;
@@ -66,15 +65,17 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower()=="bankaccounts").OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _companyService.GetListOfChatsByUserId(user.Id, "", "bankaccounts");
             if (user.Role.ToLower().Equals("admin"))
-                chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == "bankaccounts").OrderByDescending(m => m.CreationTime).ToList();
+                chats = _companyService.GetListOfChatsByUserId(user.Id, "admin", "bankaccounts");
             foreach (var item in chats)
             {
                 count = 0;
-                foreach (var x in item.ChatThread)
+                var threads = _companyService.GetListOfChatThreadsById(item.Id);
+                foreach (var x in threads)
                 {
-                    if (x.Chat.User.Role != _globalVariables.RoleId)
+                    var client = _userService.get_customer(x.UserId);
+                    if (client.Role != _globalVariables.RoleId)
                     {
                         if (!x.IsRead)
                             count++;
@@ -84,18 +85,20 @@ namespace NaijaStartupWeb.Controllers
                 {
                     Date = item.CreationTime,
                     Status = item.PostIncooperationName,
-                    TicketNumber = item.Id,
+                    TicketNumber = item.Id.ToString(),
                     NoOfNew = count
                 });
 
 
             };
-            if (Id != 0)
+            if ((Id == "0") || (string.IsNullOrWhiteSpace(Id)))
+                Id = Id;//Nothing happens here
+            else
             {
 
-                var getChatById = chats.Where(x => x.Id == Id).FirstOrDefault();
-                temp.int_var0 = getChatById.Id;
-                foreach (var x in _context.ChatThread.Include(s => s.User).Where(x => x.IsDeleted == false && x.Chat == getChatById).ToList())
+                var getChatById = chats.Where(x => x.Id == Guid.Parse(Id)).FirstOrDefault();
+                temp.string_var17 = getChatById.Id.ToString();
+                foreach (var x in _companyService.GetListOfChatThreadsById(getChatById.Id))
                 {   
                     string doc = "";
                     if (x.document != null)
@@ -104,33 +107,24 @@ namespace NaijaStartupWeb.Controllers
                         base64 = Convert.ToBase64String(byteConvert, 0, byteConvert.Length);
                         doc=  String.Format("data:image/gif;base64,{0}", base64);
                     }
+                    var client = _userService.get_customer(x.UserId);
                     temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                     {
                         Message1 = x.Body,
-                        User = x.User.Role,
+                        User = client.Role,
                         documents = doc,
 
                     });
                     
-                    if (x.User != user)
+                    if (x.UserId != user.Id)
                     {
                         x.IsRead = true;
-                        _context.Entry(x).State= System.Data.Entity.EntityState.Modified;
+                        _companyService.SaveOrUpdateChatThread(x, DbActionFlag.Update);
                     }
                 }
-                temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
-                await _context.SaveChangesAsync();
+                var client1 = _userService.get_customer(getChatById.UserId);
+                temp.string_var0 = client1.FirstName + " " + client1.LastName;
 
-                if (user.Role.ToLower().Equals("admin"))
-                {
-                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
-
-                }
-                else
-                {
-                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-                }
             }
 
             temp.string_var11 = "post_incop";
@@ -143,7 +137,7 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
-                var chat = _context.ChatHeader.Find(Input.int_var0);
+                var chat = _companyService.GetChatHeaderById(Guid.Parse(Input.string_var17));
                 if (!ValidateFileSize(Input.File1))
                 {
                     ViewBag.message = "File Size Exceeded, Kindly upload image with less than 10mb size";
@@ -161,24 +155,39 @@ namespace NaijaStartupWeb.Controllers
                 var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var2,
                         IsRead = false,
                         CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
                         CreatorUserId = user.Id,
                         document =await ConvertFileToByte(Input.File1),
-                        Chat = chat,
+                        ChatId = chat.Id,
                     }
                     };
-                _context.ChatThread.AddRange(ChatThread);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Create);
                 Input.string_var2 = "";
+
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), "BankAccounts-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + chat.Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, "BankAccounts-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + chat.Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
-            return RedirectToAction("post_incop", new { Id = Input.int_var0 });
+            return RedirectToAction("post_incop", new { Id = string.IsNullOrWhiteSpace(Input.string_var17) ? "0" : Input.string_var17 });
         }
 
-        public async Task<ActionResult> statutory(int Id)
+        public async Task<ActionResult> statutory(string Id)
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             int count = 0;
             byte[] byteConvert = null;
             string base64 = "";
@@ -193,15 +202,19 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == "statutory").OrderByDescending(m => m.CreationTime).ToList();
-            if (user.Role.ToLower().Equals("admin"))
-                chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == "statutory").OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _companyService.GetListOfChatsByUserId(user.Id, "", "statutory");
+                if (user.Role.ToLower().Equals("admin"))
+                chats = _companyService.GetListOfChatsByUserId(user.Id, "admin", "statutory");
             foreach (var item in chats)
             {
                 count = 0;
-                foreach (var x in item.ChatThread)
+
+                var threads = _companyService.GetListOfChatThreadsById(item.Id);
+                foreach (var x in threads)
                 {
-                    if (x.Chat.User.Role != _globalVariables.RoleId)
+                    var chat = _companyService.GetChatHeaderById(x.ChatId);
+                    var client = _userService.get_customer(chat.UserId);
+                    if (client.Role != _globalVariables.RoleId)
                     {
                         if (!x.IsRead)
                             count++;
@@ -211,18 +224,20 @@ namespace NaijaStartupWeb.Controllers
                 {
                     Date = item.CreationTime,
                     Status = item.PostIncooperationName,
-                    TicketNumber = item.Id,
+                    TicketNumber = item.Id.ToString(),
                     NoOfNew = count
                 });
 
 
             };
-            if (Id != 0)
+            if ((Id == "0") || (string.IsNullOrWhiteSpace(Id)))
+                Id = Id;//Nothing happens here
+            else
             {
 
-                var getChatById = chats.Where(x => x.Id == Id).FirstOrDefault();
-                temp.int_var0 = getChatById.Id;
-                foreach (var x in _context.ChatThread.Include(s => s.User).Where(x => x.IsDeleted == false && x.Chat == getChatById).ToList())
+                var getChatById = chats.Where(x => x.Id == Guid.Parse(Id)).FirstOrDefault();
+                temp.string_var17 = getChatById.Id.ToString();
+                foreach (var x in _companyService.GetListOfChatThreadsById(getChatById.Id))
                 {
                     string doc = "";
                     if (x.document != null)
@@ -231,32 +246,22 @@ namespace NaijaStartupWeb.Controllers
                         base64 = Convert.ToBase64String(byteConvert, 0, byteConvert.Length);
                         doc = String.Format("data:image/gif;base64,{0}", base64);
                     }
+                    var client = _userService.get_customer(x.UserId);
                     temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                     {
                         Message1 = x.Body,
-                        User = x.User.Role,
+                        User = client.Role,
                         documents = doc,
 
                     });
 
-                    if (x.User != user)
+                    if (x.UserId != user.Id)
                     {
                         x.IsRead = true;
-                        _context.Entry(x).State = System.Data.Entity.EntityState.Modified;
+                        _companyService.SaveOrUpdateChatThread(x, DbActionFlag.Update);
                     }
                 }
-                temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
-                await _context.SaveChangesAsync();
-                if (user.Role.ToLower().Equals("admin"))
-                {
-                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
 
-                }
-                else
-                {
-                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-                }
             }
 
             
@@ -270,7 +275,7 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
-                var chat =  _context.ChatHeader.Find(Input.int_var0);
+                var chat = _companyService.GetChatHeaderById(Guid.Parse(Input.string_var17));
                 if (!ValidateFileSize(Input.File1))
                 {
                     ViewBag.message = "File Size Exceeded, Kindly upload image with less than 10mb size";
@@ -288,26 +293,42 @@ namespace NaijaStartupWeb.Controllers
                 var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var2,
                         IsRead = false,
                         CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
                         CreatorUserId = user.Id,
                         document =await ConvertFileToByte(Input.File1),
-                        Chat = chat,
+                        ChatId= chat.Id,
                     }
                     };
-                _context.ChatThread.AddRange(ChatThread);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Create);
                 Input.string_var2 = "";
+
+                if (user.Role.ToLower().Equals("admin"))
+                {
+                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
+                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), "Statutory-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + chat.Id + "for your attention</p>", "");
+
+                }
+                else
+                {
+                    await _userService.sendEmailWithMessageAsync(user.Email, "Statutory-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + chat.Id + "</p><p>A New Reply needs your attention</p>");
+                }
             }
-            return RedirectToAction("statutory", new { Id = Input.int_var0 });
+
+            return RedirectToAction("statutory", new { Id = string.IsNullOrWhiteSpace(Input.string_var17)?"0":Input.string_var17 });
         }
 
 
 
-        public async Task<ActionResult> officelease(int Id)
+        public async Task<ActionResult> officelease(string Id)
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             int count = 0;
             byte[] byteConvert = null;
             string base64 = "";
@@ -323,15 +344,19 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+            var chats =  _companyService.GetListOfChatsByUserId(user.Id,"", redirectUrl);
             if (user.Role.ToLower().Equals("admin"))
-                chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+                chats = _companyService.GetListOfChatsByUserId(user.Id, "admin", redirectUrl);
             foreach (var item in chats)
             {
                 count = 0;
-                foreach (var x in item.ChatThread)
+
+                var threads = _companyService.GetListOfChatThreadsById(item.Id);
+                foreach (var x in threads)
                 {
-                    if (x.Chat.User.Role != _globalVariables.RoleId)
+                    var chat = _companyService.GetChatHeaderById(x.ChatId);
+                    var client = _userService.get_customer(chat.UserId);
+                    if (client.Role != _globalVariables.RoleId)
                     {
                         if (!x.IsRead)
                             count++;
@@ -341,18 +366,20 @@ namespace NaijaStartupWeb.Controllers
                 {
                     Date = item.CreationTime,
                     Status = item.PostIncooperationName,
-                    TicketNumber = item.Id,
+                    TicketNumber = item.Id.ToString(),
                     NoOfNew = count
                 });
 
 
             };
-            if (Id != 0)
+            if ((Id == "0") || (string.IsNullOrWhiteSpace(Id)))
+                Id = Id;//Nothing happens here
+            else
             {
 
-                var getChatById = chats.Where(x => x.Id == Id).FirstOrDefault();
-                temp.int_var0 = getChatById.Id;
-                foreach (var x in  _context.ChatThread.Include(s => s.User).Where(x => x.IsDeleted == false && x.Chat == getChatById).ToList())
+                var getChatById = chats.Where(x => x.Id == Guid.Parse(Id)).FirstOrDefault();
+                temp.string_var17 = getChatById.Id.ToString();
+                foreach (var x in  _companyService.GetListOfChatThreadsById(getChatById.Id))
                 {
                     string doc = "";
                     if (x.document != null)
@@ -361,32 +388,24 @@ namespace NaijaStartupWeb.Controllers
                         base64 = Convert.ToBase64String(byteConvert, 0, byteConvert.Length);
                         doc = String.Format("data:image/gif;base64,{0}", base64);
                     }
+                    var client = _userService.get_customer(x.UserId);
                     temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                     {
                         Message1 = x.Body,
-                        User = x.User.Role,
+                        User = client.Role,
                         documents = doc,
 
                     });
 
-                    if (x.User != user)
+                    if (x.UserId != user.Id)
                     {
                         x.IsRead = true;
-                        _context.Entry(x).State = System.Data.Entity.EntityState.Modified;
+                        _companyService.SaveOrUpdateChatThread(x, DbActionFlag.Update);
                     }
                 }
-                temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
-                await _context.SaveChangesAsync();
-                if (user.Role.ToLower().Equals("admin"))
-                {
-                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
-
-                }
-                else
-                {
-                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-                }
+                var client1 = _userService.get_customer(getChatById.UserId);
+                temp.string_var0 = client1.FirstName + " " + client1.LastName;
+                
             }
 
 
@@ -400,7 +419,7 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
-                var chat = _context.ChatHeader.Find(Input.int_var0);
+                var chat =_companyService.GetChatHeaderById(Guid.Parse(Input.string_var17));
                 if (!ValidateFileSize(Input.File1))
                 {
                     ViewBag.message = "File Size Exceeded, Kindly upload image with less than 10mb size";
@@ -418,17 +437,18 @@ namespace NaijaStartupWeb.Controllers
                 var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var2,
                         IsRead = false,
                         CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
                         CreatorUserId = user.Id,
                         document =await ConvertFileToByte(Input.File1),
-                        Chat = chat,
+                        ChatId = chat.Id,
                     }
                     };
-                _context.ChatThread.AddRange(ChatThread);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Create);
 
                 if (user.Role.ToLower().Equals("admin"))
                 {
@@ -442,11 +462,14 @@ namespace NaijaStartupWeb.Controllers
                 }
                 Input.string_var2 = "";
             }
-            return RedirectToAction("officelease", new { Id = Input.int_var0 });
+            return RedirectToAction("officelease", new { Id = string.IsNullOrWhiteSpace(Input.string_var17) ? "0" : Input.string_var17 });
         }
 
-        public async Task<ActionResult> cacchange(int Id)
+        public async Task<ActionResult> cacchange(string Id)
         {
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+
             int count = 0;
             byte[] byteConvert = null;
             string base64 = "";
@@ -462,15 +485,19 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+            var chats = _companyService.GetListOfChatsByUserId(user.Id,"", redirectUrl);
             if (user.Role.ToLower().Equals("admin"))
-                chats = _context.ChatHeader.Include(x => x.ChatThread).ThenInclude(s=>s.Chat).ThenInclude(u=>u.User).Where(s => s.IsDeleted == false && s.IsTicket == false && s.Group.ToLower() == redirectUrl).OrderByDescending(m => m.CreationTime).ToList();
+                chats = _companyService.GetListOfChatsByUserId(user.Id, "admin", redirectUrl);
             foreach (var item in chats)
             {
                 count = 0;
-                foreach (var x in item.ChatThread)
+
+                var threads = _companyService.GetListOfChatThreadsById(item.Id);
+                foreach (var x in threads)
                 {
-                    if (x.Chat.User.Role != _globalVariables.RoleId)
+                    var chat = _companyService.GetChatHeaderById(x.ChatId);
+                    var client = _userService.get_customer(chat.UserId);
+                    if (client.Role != _globalVariables.RoleId)
                     {
                         if (!x.IsRead)
                             count++;
@@ -480,18 +507,20 @@ namespace NaijaStartupWeb.Controllers
                 {
                     Date = item.CreationTime,
                     Status = item.PostIncooperationName,
-                    TicketNumber = item.Id,
+                    TicketNumber = item.Id.ToString(),
                     NoOfNew = count
                 });
 
 
             };
-            if (Id != 0)
+            if ((Id == "0") || (string.IsNullOrWhiteSpace(Id)))
+                Id = Id;//Nothing happens here
+            else 
             {
 
-                var getChatById = chats.Where(x => x.Id == Id).FirstOrDefault();
-                temp.int_var0 = getChatById.Id;
-                foreach (var x in _context.ChatThread.Include(s => s.User).Where(x => x.IsDeleted == false && x.Chat == getChatById).ToList())
+                var getChatById = chats.Where(x => x.Id == Guid.Parse(Id)).FirstOrDefault();
+                temp.string_var17 = getChatById.Id.ToString();
+                foreach (var x in _companyService.GetListOfChatThreadsById(getChatById.Id))
                 {
                     string doc = "";
                     if (x.document != null)
@@ -500,32 +529,24 @@ namespace NaijaStartupWeb.Controllers
                         base64 = Convert.ToBase64String(byteConvert, 0, byteConvert.Length);
                         doc = String.Format("data:image/gif;base64,{0}", base64);
                     }
+                    var client = _userService.get_customer(x.UserId);
                     temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                     {
                         Message1 = x.Body,
-                        User = x.User.Role,
+                        User = client.Role,
                         documents = doc,
 
                     });
 
-                    if (x.User != user)
+                    if (x.UserId != user.Id)
                     {
                         x.IsRead = true;
-                        _context.Entry(x).State = System.Data.Entity.EntityState.Modified;
+                        _companyService.SaveOrUpdateChatThread(x, DbActionFlag.Update);
                     }
                 }
-                temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
-                await _context.SaveChangesAsync();
-                if (user.Role.ToLower().Equals("admin"))
-                {
-                    var adminList = (await _userService.GetAllAdminEmails()).Take(5);
-                    await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(), temp.string_var10 + "-New Reply From " + user.FirstName + " " + user.LastName, "<p>A New Reply for Ticket Number #" + Id + "for your attention</p>", "");
-
-                }
-                else
-                {
-                    await _userService.sendEmailWithMessageAsync(user.Email, temp.string_var10 + "-New Reply From Naija Startup", "<p>New Reply For Ticket Number #" + Id + "</p><p>A New Reply needs your attention</p>");
-                }
+                var client1 = _userService.get_customer(getChatById.UserId);
+                temp.string_var0 = client1.FirstName + " " + client1.LastName;
+                
             }
 
 
@@ -539,7 +560,7 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
-                var chat =  _context.ChatHeader.Find(Input.int_var0);
+                var chat = _companyService.GetChatHeaderById(Guid.Parse(Input.string_var17));
                 if (!ValidateFileSize(Input.File1))
                 {
                     ViewBag.message = "File Size Exceeded, Kindly upload image with less than 10mb size";
@@ -557,17 +578,18 @@ namespace NaijaStartupWeb.Controllers
                 var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var2,
                         IsRead = false,
                         CreationTime = DateTime.Now,
                         CreatorUserId = user.Id,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
                         document =await ConvertFileToByte(Input.File1),
-                        Chat = chat,
+                        ChatId = chat.Id,
                     }
                     };
-                _context.ChatThread.AddRange(ChatThread);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Update);
 
                 if (user.Role.ToLower().Equals("admin"))
                 {
@@ -581,7 +603,7 @@ namespace NaijaStartupWeb.Controllers
                 }
                 Input.string_var2 = "";
             }
-            return RedirectToAction("cacchange", new { Id = Input.int_var0 });
+            return RedirectToAction("cacchange", new { Id = string.IsNullOrWhiteSpace(Input.string_var17) ? "0" : Input.string_var17 });
         }
         public async Task<ActionResult> new_requests(string Id)
         {
@@ -613,35 +635,43 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 Input.string_var2 = "";
-                var companyName = _context.ChatHeader.Where(x => x.IsDeleted == false && x.Group.ToLower().Equals(Input.string_var3.ToLower()) && x.Subject.ToLower().Equals(Input.string_var2.ToLower()) && x.PostIncooperationName.ToLower().Equals(Input.string_var4.ToLower())).FirstOrDefault();
+                var companyName = _companyService.GetPostIncoorperationTicket(Input.string_var3.ToLower(),Input.string_var2.ToLower(), Input.string_var5.ToLower());
                 if (companyName != null)
                 {
                     ViewBag.message = "This Subject and Company name request already exist, Kindly go to the existing thread and proceed";
                     return View(Input);
                 }
+                var guid = Guid.NewGuid();
                 var user = await _userService.get_User_By_Session();
                 var cHeader = new ChatHeader
                 {
-                    User = user,
+                    UserId = user.Id,
                     CreationTime = DateTime.Now,
+                    ModificationTime = DateTime.Now,
+                    DeletionTime = DateTime.Now,
                     CreatorUserId = user.Id,
                     Subject = Input.string_var2,
                     Body = Input.string_var4,
                     PostIncooperationName = Input.string_var5,
                     Group = Input.string_var3,
-                    ChatThread = new List<ChatThread>()
+                    Id = guid,
+                };
+
+                var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
+                        ChatId = guid,
                         Body = Input.string_var4,
                         IsRead = false,
                         CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
                         CreatorUserId = user.Id
                     }
-                    }
                 };
-                _context.ChatHeader.Add(cHeader);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Create);
+                _companyService.SaveOrUpdateChatHeader(cHeader, DbActionFlag.Create);
                 if (user.Role.ToLower().Equals("admin"))
                 {
                     var adminList = (await _userService.GetAllAdminEmails()).Take(5);
@@ -692,7 +722,7 @@ namespace NaijaStartupWeb.Controllers
         [HttpGet]
         public async Task<ActionResult> edit_companies(string Id)
         {
-            var company = _context.Company_Registration.Find(Guid.Parse(Id));
+            var company = _companyService.GetCompanyById(Guid.Parse(Id));
             if (company != null)
             {
 
@@ -702,14 +732,12 @@ namespace NaijaStartupWeb.Controllers
         [HttpDelete]
         public async Task<bool> delete_companies(string Id)
         {
-            var company = _context.Company_Registration.Find(Id);
+            var company =  _companyService.GetCompanyById(Guid.Parse(Id));
             if (company != null)
             {
                 company.IsDeleted = true;
                 company.ModificationTime = DateTime.Now;
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return true;
+                return _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
             }
             else
                 return false;
@@ -724,11 +752,11 @@ namespace NaijaStartupWeb.Controllers
         }
         public ActionResult all_payments()
         {
-            return View(_context.Payments.Include(x => x.Registration).Where((x => x.IsDeleted == false)).OrderByDescending(s => s.CreationTime)
+            return View(_companyService.GetPayments()
                 .Select(x => new TemporaryVariables
                 {
                     string_var0 = x.Id.ToString(),
-                    string_var1 = x.Registration.CompanyName,
+                    string_var1 = _companyService.GetCompanyById(x.RegistrationId).CompanyName,
                     string_var2 = x.PaymentType,
                     date_var0 = x.CreationTime,
                     string_var3 = x.Tax.ToString(),
@@ -738,14 +766,14 @@ namespace NaijaStartupWeb.Controllers
         }
         public ActionResult admin_companies()
         {
-            return View(_context.Company_Registration.Include(x => x.Package).Include(s => s.User).Where((x => x.IsDeleted == false && x.IsCacAvailable == true && x.RegCompleted == true)).OrderByDescending(s => s.CreationTime)
+            return View(_companyService.GetRegistration()
                 .Select(x => new TemporaryVariables
                 {
-                    string_var0 = x.User.FirstName + " " + x.User.LastName,
-                    string_var1 = x.User.Email,
+                    string_var0 = _userService.get_customer(x.UserId).FirstName,
+                    string_var1 = _userService.get_customer(x.UserId).Email,
                     string_var2 = x.CompanyName,
                     string_var3 = x.CompanyType,
-                    string_var4 = x.Package.PackageName,
+                    string_var4 =  _companyService.GetPackageById(x.PackageId).PackageName,
                     string_var5 = x.ApprovalStatus,
                     date_var0 = x.CreationTime,
                     string_var6 = x.ApprovalStatus,
@@ -755,7 +783,7 @@ namespace NaijaStartupWeb.Controllers
         public async Task<ActionResult> incentives()
         {
 
-            return View(_context.Incentives.Where(x => x.IsDeleted == false).OrderByDescending(s => s.CreationTime).
+            return View(_companyService.GetListOfAllIncentives().
                             Select(x => new TemporaryVariables
                             {
                                 int_var0 = x.Id,
@@ -767,7 +795,7 @@ namespace NaijaStartupWeb.Controllers
         }
         public async Task<ActionResult> view_incentives(int Id)
         {
-            var inc = _context.Incentives.Find(Id);
+            var inc = _companyService.GetIncentiveById(Id);
             var temp = new TemporaryVariables
             {
                 string_var0 = inc.IncentiveName,
@@ -777,13 +805,12 @@ namespace NaijaStartupWeb.Controllers
         }
         public async Task<bool> delete_incentives(int Id)
         {
-            var company =  _context.Incentives.Find(Id);
+            var company = _companyService.GetIncentiveById(Id);
             if (company != null)
             {
                 company.IsDeleted = true;
                 company.ModificationTime = DateTime.Now;
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateIncentive(company, DbActionFlag.Update);
                 return true;
             }
             else
@@ -799,49 +826,64 @@ namespace NaijaStartupWeb.Controllers
             {
                 string_var0 = Id
             };
-            var get_inc = _context.Comp_Incentives.Include(s => s.Registration).Where(x => x.Registration.Id.ToString() == Id && x.IsDeleted == false).ToList();
-            var list2 = (from compIn in _context.Comp_Incentives
-                         join incents in _context.Incentives
-                         on new { a1 = compIn.Incentive.Id } equals new { a1 = incents.Id }
-                         into incents1
-                         from incents2 in incents1.DefaultIfEmpty()
-                         where compIn.Registration.Id.ToString() == Id && compIn.IsDeleted == false
-                         select new { c1 = compIn.Incentive.Id, c2 = incents2.IncentiveName }).ToList();
-            ViewBag.list2 = new SelectList(list2, "c1", "c2");
+            var get_inc = _companyService.GetIncentives(Id);
+            //var list2 = (from compIn in _context.Comp_Incentives
+            //             join incents in _context.Incentives
+            //             on new { a1 = compIn.Incentive.Id } equals new { a1 = incents.Id }
+            //             into incents1
+            //             from incents2 in incents1.DefaultIfEmpty()
+            //             where compIn.Registration.Id.ToString() == Id && compIn.IsDeleted == false
+            //             select new { c1 = compIn.Incentive.Id, c2 = incents2.IncentiveName }).ToList();
+            var CompId = Guid.Parse(Id);
+            var list2 = _companyService.GetComanyIncentivesByCompanyId(CompId)
+                             .Select(x => new ListItem
+                             {
+                                 Value = _companyService.GetIncentiveById(x.Incentive_Id).Id,
+                                 Text = _companyService.GetIncentiveById(x.Incentive_Id).IncentiveName,
+                             }).ToList();
+            ViewBag.list2 = new SelectList(list2, "Value", "Text");
 
-            var list1 = (from incents in _context.Incentives
-                         join compIn in _context.Comp_Incentives
-                         on new { a1 = incents.Id } equals new { a1 = compIn.Incentive.Id }
-                         into compIn1
-                         from compIn2 in compIn1.DefaultIfEmpty()
-                         where incents.IsDeleted == false && incents.Id != compIn2.Incentive.Id
-                         select new { c1 = incents.Id, c2 = incents.IncentiveName }).ToList();
-            ViewBag.list1 = new SelectList(list1, "c1", "c2");
+            //var list1 = (from incents in _context.Incentives
+            //             join compIn in _context.Comp_Incentives
+            //             on new { a1 = incents.Id } equals new { a1 = compIn.Incentive.Id }
+            //             into compIn1
+            //             from compIn2 in compIn1.DefaultIfEmpty()
+            //             where incents.IsDeleted == false && incents.Id != compIn2.Incentive.Id
+            //             select new { c1 = incents.Id, c2 = incents.IncentiveName }).ToList();
+            var list1 =_companyService.GetListOfAllIncentives().Where(x => !(_companyService.GetAllComanyIncentives().Any(y => y.Incentive_Id == x.Id))).ToList()
+            .Select(x => new ListItem
+             {
+                 Value = x.Id,
+                 Text = x.IncentiveName,
+             }).ToList();
+            ViewBag.list1 = new SelectList(list1, "Value", "Text");
             return View(Input);
         }
         [HttpPost]
         public async Task<ActionResult> attach_incentives(TemporaryVariables Input, int[] snumber2)
         {
 
-            var compInt = _context.Comp_Incentives.Where(x=>x.Registration.Id ==Guid.Parse(Input.string_var0)).ToList();
-            _context.Comp_Incentives.RemoveRange(compInt);
-            await _context.SaveChangesAsync();
+            var Id = Guid.Parse(Input.string_var0);
+            var compInt = _companyService.GetCompIncentivesByCompanyId(Id);
+            _companyService.SaveOrUpdateCompIncentiveRange(compInt, DbActionFlag.Delete);
 
-            var comp = _context.Company_Registration.Where(x => x.Id == Guid.Parse(Input.string_var0)).FirstOrDefault();
+            var comp = _companyService.GetCompanyById(Id);
             
             if (snumber2 != null)
             {
                 foreach (var bh in snumber2)
                 {
-                    var inc = _context.Incentives.Where(x => x.Id == bh).FirstOrDefault();
+                    var inc = _companyService.GetIncentiveById(bh);
                     var temp = new Comp_Incentives
                     {
-                        Incentive = inc,
+                        Incentive_Id = inc.Id,
                         Registration = comp,
+                        DeletionTime = DateTime.Now,
+                        CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
                     };
-                    _context.Comp_Incentives.Add(temp);
+                    _companyService.SaveOrUpdateCompIncentive(temp, DbActionFlag.Create);
                 }
-                await _context.SaveChangesAsync();
             }
             return RedirectToAction("attach_incentives",new { Id = Input.string_var0 });
         }
@@ -856,15 +898,16 @@ namespace NaijaStartupWeb.Controllers
                 IncentiveName = Input.string_var0,
                 Description = Input.string_var1,
                 CreationTime = DateTime.Now,
+                ModificationTime = DateTime.Now,
+                DeletionTime = DateTime.Now,
                 CreatorUserId = _globalVariables.userid,
             };
             try
             {
-                _context.Incentives.Add(inc);
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateIncentive(inc, DbActionFlag.Create);
             }catch(Exception ex)
             {
-
+                return View(Input);
             }
             return RedirectToAction("incentives");
         }
@@ -875,14 +918,16 @@ namespace NaijaStartupWeb.Controllers
             _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             if (_globalVariables.RoleId == "Admin")
             {
-                return View("admin_companies",_context.Company_Registration.Include(x => x.Package).Include(s => s.User).Where((x => x.IsDeleted == false && x.IsCacAvailable == false)).OrderByDescending(s => s.CreationTime)
+                var companies = _companyService.GetUnconfirmedCompanies();
+                if (companies == null) return View("admin_companies");
+                return View("admin_companies", companies
                     .Select(x => new TemporaryVariables
                     {
-                        string_var0 = x.User.FirstName + " " + x.User.LastName,
-                        string_var1 = x.User.Email,
+                        string_var0 = string.IsNullOrWhiteSpace(_userService.get_customer(x.UserId).FirstName) ? "" : _userService.get_customer(x.UserId).FirstName,
+                        string_var1 = string.IsNullOrWhiteSpace(_userService.get_customer(x.UserId).Email) ? "" : _userService.get_customer(x.UserId).Email,
                         string_var2 = x.CompanyName,
                         string_var3 = x.CompanyType,
-                        string_var4 = x.Package.PackageName,
+                        string_var4 = string.IsNullOrWhiteSpace(_companyService.GetPackageById(x.PackageId).PackageName)?"": _companyService.GetPackageById(x.PackageId).PackageName,
                         string_var5 = x.ApprovalStatus,
                         date_var0 = x.CreationTime,
                         string_var6 = x.ApprovalStatus,
@@ -892,7 +937,7 @@ namespace NaijaStartupWeb.Controllers
             else
             {
 
-                return View("all_companies", _context.Company_Registration.Include(x => x.Package).Include(s => s.User).Where((x => x.IsDeleted == false && x.User.Id.Equals(_globalVariables.userid) && x.RegCompleted == false)).OrderByDescending(s => s.CreationTime)
+                return View("all_companies", _companyService.GetAllCompanies    ()
                    .Select(x => new TemporaryVariables
                    {
                        string_var0 = x.CompanyName,
@@ -915,7 +960,7 @@ namespace NaijaStartupWeb.Controllers
 
             _globalVariables = (GlobalVariables)Session["GlobalVariables"];
             _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
-            var company = _context.Company_Registration.Include(x=>x.User).Where(x => x.IsDeleted == false && x.Id.ToString() == Id).FirstOrDefault();
+            var company = _companyService.GetCompanyDetailById(Id);
             if (company != null)
             {
                 company.ApprovalStatus = "Confirmed";
@@ -923,10 +968,9 @@ namespace NaijaStartupWeb.Controllers
                 company.IsCacAvailable = true;
                 company.ModificationUserId = _globalVariables.userid;
 
-
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
-                await _userService.sendEmailWithMessageAsync(company.User.Email, "Naija Startup Approval - "+company.CompanyName + " " + company.CompanyType, "<p>Congratulations On your Approval</p><p>You Company Name has successfully been approved</p>");
+                var user = _userService.get_customer(company.UserId);
+                _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
+                await _userService.sendEmailWithMessageAsync(user.Email, "Naija Startup Approval - "+company.CompanyName + " " + company.CompanyType, "<p>Congratulations On your Approval</p><p>You Company Name has successfully been approved</p>");
 
             }
             return RedirectToAction("admin_companies", null, null);
@@ -935,8 +979,8 @@ namespace NaijaStartupWeb.Controllers
         public async Task<ActionResult> view_company(string Id)
         {
             var companyInfo = new TemporaryVariables();
-            var company = _context.Company_Registration.Include(x => x.Package).Include(s => s.addOnServices).Include(o => o.company_Officers).Include(x=>x.Comp_Incentives).ThenInclude(s=>s.Incentive).Where(x => x.Id.ToString() == Id).FirstOrDefault();
-            if (company != null)
+            var company = _companyService.GetCompanyDetailById(Id);
+                if (company != null)
             {
                 companyInfo = new TemporaryVariables
                 {
@@ -951,13 +995,17 @@ namespace NaijaStartupWeb.Controllers
                     string_var7 = company.SharePrice.ToString(),
                     string_var8 = company.ShareHolderName,
                     decimal_var0 = company.SharesAllocated,
-                    string_var9 = company.CreationTime.ToString(),
-                    string_var10 = company.Package.PackageName,
-                    string_var11 = company.Package.CreationTime.ToString(),
-                    string_var12 = company.Package.Price.ToString("#,##0.00"),
                     string_var15 = company.Id.ToString(),
                     string_var17 = company.TotalAmount.ToString("#,##0.00"),
-                };
+                    string_var9 = company.CreationTime.ToString()
+            };
+                var package = _companyService.GetPackageById(company.PackageId);
+                if (package != null)
+                {
+                    companyInfo.string_var10 = package.PackageName;
+                    companyInfo.string_var11 = package.CreationTime.ToString();
+                    companyInfo.string_var12 = package.Price.ToString("#,##0.00");
+                }
                 
                 if (company.company_Officers != null && company.company_Officers.Any())
                 {
@@ -999,14 +1047,19 @@ namespace NaijaStartupWeb.Controllers
                         companyInfo.string_var14 += officers;
                     }
                 }
-                if(company.Comp_Incentives != null && company.Comp_Incentives.Any())
+                var Incentives = _companyService.GetComanyIncentivesByCompanyId(company.Id);
+                if(Incentives != null && Incentives.Any())
                 {
-                    foreach (var item in company.Comp_Incentives)
+                    foreach (var item in Incentives)
                     {
-                        string incentives = "<tr><td>" + item.Incentive.IncentiveName + "</td>";
-                        incentives += "<td class='text-center'>" + item.Incentive.Description + "</td>";
-                        incentives += "<td class='text-right'>" + item.CreationTime + "</td></tr>";
-                        companyInfo.string_var16 += incentives;
+                        var x = _companyService.GetIncentiveById(item.Incentive_Id);
+                        if (x != null)
+                        {
+                            string incentives = "<tr><td>" + x.IncentiveName + "</td>";
+                            incentives += "<td class='text-center'>" + x.Description + "</td>";
+                            incentives += "<td class='text-right'>" + item.CreationTime + "</td></tr>";
+                            companyInfo.string_var16 += incentives;
+                        }
                 }
             }
         }
@@ -1019,8 +1072,8 @@ namespace NaijaStartupWeb.Controllers
         {
             string base64 = "";
             byte[] byteConvert = new byte[0];
-            var officer = _context.Company_Officers.Where(x => x.Id.ToString() == Id && x.IsDeleted == false).FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(type))
+            var officer = _companyService.GetCompanyOfficerDetailById(Id);
+                if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(type))
                 return "";
 
             if (type == "image")
@@ -1061,26 +1114,35 @@ namespace NaijaStartupWeb.Controllers
         }
         public async Task<ActionResult> new_company(string Id)
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             TemporaryVariables tempValues = new TemporaryVariables
             {
                 bool_var0 = false,
                 list_var0 = new List<string>()
             };
-            if (!string.IsNullOrWhiteSpace(Id))
+            try
             {
-                var company = _context.Company_Registration.Find(Guid.Parse(Id));
-                if (company != null)
+                if (!string.IsNullOrWhiteSpace(Id))
                 {
-                    _temporaryVariables.string_var0 = company.Id.ToString();
-                    Session["TemporaryVariables"]=_temporaryVariables;
-                    return View(tempValues = new TemporaryVariables {string_var0=company.CompanyName, string_var10= company.CompanyType, bool_var0=true,list_var0=new List<string>() });
+                    var company = _companyService.GetCompanyById(Guid.Parse(Id));
+                    if (company != null)
+                    {
+                        _temporaryVariables.string_var0 = company.Id.ToString();
+                        Session["TemporaryVariables"] = _temporaryVariables;
+                        return View(tempValues = new TemporaryVariables { string_var0 = company.CompanyName, string_var10 = company.CompanyType, bool_var0 = true, list_var0 = new List<string>() });
+                    }
+
                 }
-                
-            }
-            if (_temporaryVariables !=null)
+                if (_temporaryVariables != null)
+                {
+                    if (_temporaryVariables.string_var1 != null)
+                        tempValues.string_var0 = _temporaryVariables.string_var1;
+                }
+            }catch(Exception ex)
             {
-                if (_temporaryVariables.string_var1 != null)
-                    tempValues.string_var0 = _temporaryVariables.string_var1;
+                
             }
 
             return View(tempValues);
@@ -1099,10 +1161,10 @@ namespace NaijaStartupWeb.Controllers
                 string table = "<tr><td colspan='5' class='text-left text-bold'>Similar Match</td></tr>";
                 _temporaryVariables.string_var1 = Input.string_var0 + " " + Input.string_var10;
                 Session["TemporaryVariables"]=_temporaryVariables;
-                var exComp = _context.Company_Registration.Where(x => x.CompanyName.Equals(Input.string_var0) && x.CompanyType.Equals(Input.string_var10) && x.IsDeleted == false && x.RegCompleted == true).FirstOrDefault();
-                if (exComp != null)
+                var exComp = _companyService.GetExistingCompanyByNameAndType(Input.string_var0, Input.string_var10);
+                    if (exComp != null)
                 {
-                    var simCopanies = _context.Company_Registration.Where(x => x.CompanyName.Contains(Input.string_var0) && x.RegCompleted == true).ToList();
+                    var simCopanies = _companyService.GetExistingRegisteredCompaniesByName(Input.string_var0);
 
                     Input.bool_var0 = false;
                     Input.bool_var1 = true;
@@ -1120,7 +1182,7 @@ namespace NaijaStartupWeb.Controllers
                 }
                 else
                 {
-                    exComp = _context.Company_Registration.Include(x=>x.User).Where(x => x.CompanyName.Equals(Input.string_var0) && x.CompanyType.Equals(Input.string_var10) && x.IsDeleted == false && x.RegCompleted==false && x.IsCacAvailable==false).FirstOrDefault();
+                    exComp = _companyService.GetExistingNonRegisteredCompanyByName(Input.string_var0, Input.string_var10);
                     if (exComp != null)
                     {
                         if(exComp.User.Id != _globalVariables.userid)
@@ -1129,7 +1191,7 @@ namespace NaijaStartupWeb.Controllers
                             Input.bool_var3 = true;
                         _temporaryVariables.string_var0 = exComp.Id.ToString();
                         Session["TemporaryVariables"]= _temporaryVariables;
-                        var simCopanies1 = _context.Company_Registration.Where(x => x.CompanyName.Contains(Input.string_var0) && x.RegCompleted == true).ToList();
+                        var simCopanies1 = _companyService.GetExistingNonRegisteredCompaniesByName(Input.string_var0);
                             foreach (var item in simCopanies1)
                             {
                                 Input.list_var0.Add(item.CompanyName);
@@ -1144,10 +1206,10 @@ namespace NaijaStartupWeb.Controllers
                             Input.bool_var2 = false;
                             return View(Input);
                     }
-                    exComp = _context.Company_Registration.Include(x => x.User).Where(x => x.CompanyName.Equals(Input.string_var0) && x.CompanyType.Equals(Input.string_var10) && x.IsDeleted == false && x.RegCompleted == false && x.IsCacAvailable == true).FirstOrDefault();
-                    if (exComp != null)
+                    exComp = _companyService.GetExistingCompanyRegisteredOnCac(Input.string_var0, Input.string_var1);
+                        if (exComp != null)
                     {
-                        var simCopanies1 = _context.Company_Registration.Where(x => x.CompanyName.Contains(Input.string_var0) && x.RegCompleted == true).ToList();
+                        var simCopanies1 = _companyService.GetExistingNonRegisteredCompaniesByName(Input.string_var0);
                         foreach (var item in simCopanies1)
                         {
                             Input.list_var0.Add(item.CompanyName);
@@ -1165,8 +1227,8 @@ namespace NaijaStartupWeb.Controllers
                     }
 
                     count = 1;
-                    var simCopanies = _context.Company_Registration.Where(x => x.CompanyName.Contains(Input.string_var0) && x.RegCompleted == true).ToList();
-                    foreach (var item in simCopanies)
+                    var simCopanies = _companyService.GetExistingRegisteredCompaniesByName(Input.string_var0);
+                        foreach (var item in simCopanies)
                     {
                         Input.list_var0.Add(item.CompanyName);
                         table = "<td>" + count + "</td><td class='gray-bg'>" + item.CompanyName + "</td><td>" + item.CompanyType + "</td><td class='gray-bg'>" + item.CreationTime.ToString("dd MMMM yyyy") + "</td><td>" + item.ApprovalStatus + "</td>";
@@ -1191,7 +1253,7 @@ namespace NaijaStartupWeb.Controllers
             _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             if (!string.IsNullOrWhiteSpace(companyName))
             {
-                var exComp = _context.Company_Registration.Where(x => x.CompanyName.ToLower() ==companyName.ToLower()).FirstOrDefault();
+                var exComp = _companyService.GetExistingRegisteredCompanyByName(companyName);
                 if (exComp != null)
                 {
                     _temporaryVariables.string_var0 = exComp.Id.ToString();
@@ -1205,16 +1267,18 @@ namespace NaijaStartupWeb.Controllers
                         CompanyName = companyName,
                         CompanyType = Type,
                         IsDeleted = false,
-                        User = await _userService.get_User(_globalVariables.userid),
+                        UserId = _globalVariables.userid,
                         ApprovalStatus = "Awaiting Confirmation",
-                        IsCacAvailable =false,
-                        CreationTime = DateTime.Now
+                        IsCacAvailable = false,
+                        CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
+                        Id = Guid.NewGuid()
                     };
                     try
                     {
-                        _context.Company_Registration.Add(regComp);
-                        await _context.SaveChangesAsync();
-                        exComp = _context.Company_Registration.Where(x => x.CompanyName.Equals(companyName)).FirstOrDefault();
+                        _companyService.SaveOrUpdateRegistration(regComp, DbActionFlag.Create);
+                        exComp = _companyService.GetExistingRegisteredCompanyByName(companyName);
                         if (exComp != null)
                         {
                             _temporaryVariables.string_var0 = exComp.Id.ToString();
@@ -1237,18 +1301,18 @@ namespace NaijaStartupWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> packages(TemporaryVariables Input)
         {
-            
-            var company = _context.Company_Registration.Find(Guid.Parse(_temporaryVariables.string_var0));
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+            var company =  _companyService.GetCompanyById(Guid.Parse(_temporaryVariables.string_var0));
             if (company != null)    
             {
-                company.Package = GetProductId(Input.string_var0);
-                company.TotalAmount = company.Package.Price;
+                company.PackageId = GetProductId(Input.string_var0).Id;
+                company.TotalAmount = GetProductId(Input.string_var0).Price;
                 }
             try
             {
-
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
                 return RedirectToAction("order_details");
             }
             catch (Exception ex)
@@ -1263,7 +1327,7 @@ namespace NaijaStartupWeb.Controllers
             if (product.Equals("1")) productname = "essential";
             else if (product.Equals("2")) productname = "standard";
             else productname = "premium";
-            var company = _context.Package.Where(x => x.PackageName.ToLower().Contains(productname)).FirstOrDefault();
+            var company = _companyService.GetPackageByProductName(productname);
             return company;
         }
         public ActionResult order_summary()
@@ -1278,7 +1342,11 @@ namespace NaijaStartupWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> order_details(TemporaryVariables Input)
         {
-            var company = _context.Company_Registration.Include(s=>s.Package).Where(x=>x.Id==Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+            var Id = Guid.Parse(_temporaryVariables.string_var0);
+            var company = _companyService.GetCompanyDetailByGuidId(Id);
             if (company != null)
             {
                 company.AlternateCompanyName = Input.string_var1;
@@ -1294,9 +1362,7 @@ namespace NaijaStartupWeb.Controllers
             }
             try
             {
-
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
                 return RedirectToAction("owner_details");
             }
             catch (Exception ex)
@@ -1307,21 +1373,27 @@ namespace NaijaStartupWeb.Controllers
         }
         public async Task<ActionResult> owner_details()
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             var temp = new TemporaryVariables();
             temp.string_array_temp0 = new string[30];
             for (int i = 0;i<temp.string_array_temp0.Length;i++)
             {
                 temp.string_array_temp0[i] = "";
             }
-            var company = _context.Company_Registration.Include(s => s.Package).Where(x => x.Id == Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+            var Id = Guid.Parse(_temporaryVariables.string_var0);
+            var company = _companyService.GetCompanyDetailByGuidId(Id);
             if (company != null)
             {
-                temp.string_var0 = company.Package.PackageName;
-                temp.string_var1 = "NGN" + company.Package.Price.ToString("#,##0.00");
-                temp.string_var2 = "NGN" + company.Package.Price.ToString("#,##0.00");
+                var package = _companyService.GetPackageById(company.PackageId);
+                if(package != null)
+                temp.string_var0 = package.PackageName;
+                temp.string_var1 = "NGN" + package.Price.ToString("#,##0.00");
+                temp.string_var2 = "NGN" + package.Price.ToString("#,##0.00");
                 temp.string_var3 = "NGN" + ("2,400");
-                temp.decimal_var0 = company.Package.Price;
-                temp.decimal_var1 = 2400 + company.Package.Price;
+                temp.decimal_var0 = package.Price;
+                temp.decimal_var1 = 2400 + package.Price;
 
             }
             await select_query();
@@ -1330,13 +1402,15 @@ namespace NaijaStartupWeb.Controllers
 
         public async Task<string> select_query()
         {
-            var country = _context.Settings.Where(x => x.code.ToLower() == "country").ToList();
+            var country = _companyService.GetSettingsByCodeName("country");
             ViewBag.country = new SelectList(country, "description", "description");
             return "";
         }
         [HttpPost]
         public async Task<ActionResult> owner_details(TemporaryVariables Input)
         {
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
 
             if (!await ValidateFilesFormat(Input.File1) || !await ValidateFilesFormat(Input.File2)|| !await ValidateFilesFormat(Input.File3)||
                 !await ValidateFilesFormat(Input.File4)|| !await ValidateFilesFormat(Input.File5)|| !await ValidateFilesFormat(Input.File6))
@@ -1353,7 +1427,8 @@ namespace NaijaStartupWeb.Controllers
                 await select_query();
                 return View(Input);
             }
-            var company = _context.Company_Registration.Include(s=>s.company_Officers).Where(x=>x.Id==Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+            var Id = Guid.Parse(_temporaryVariables.string_var0);
+            var company =  _companyService.GetCompanyDetailByGuidId(Id);
             try
             {
                 if (company != null)
@@ -1363,12 +1438,13 @@ namespace NaijaStartupWeb.Controllers
                     var phone = string.IsNullOrWhiteSpace(Input.string_array_temp0[12]) ? "" : Input.string_array_temp0[12];
                     if (Input.bool_var0)
                         company.TotalAmount = Input.decimal_var0;
-                    var getOfficers = _context.Company_Officers.Include(s=>s.Registration).Where(x => (x.Id_Number == passNumber && x.Registration.Id == company.Id) || (x.Email == email && x.Registration.Id == company.Id) || (x.Phone_No == phone && x.Registration.Id == company.Id)).FirstOrDefault();
+                    var getOfficers = _companyService.GetCompanyOfficers(passNumber,company.Id,email,phone);
 
                     if (getOfficers == null)
                     {
                         var officers = new Company_Officers
                         {
+                            Id = Guid.NewGuid(),
                             FullName = Input.string_array_temp0[0],
                             Gender = Input.string_array_temp0[1],
                             Id_Type = Input.string_array_temp0[6],
@@ -1386,12 +1462,13 @@ namespace NaijaStartupWeb.Controllers
                             Identification = await ConvertFileToByte(Input.File1),
                             CerficationOfBirth = await ConvertFileToByte(Input.File2),
                             Proficiency = await ConvertFileToByte(Input.File3),
+                            CreationTime = DateTime.Now,
+                            ModificationTime = DateTime.Now,
+                            DeletionTime = DateTime.Now,
 
                         };
-                        company.company_Officers.Add(officers);
 
-                        _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                        await _context.SaveChangesAsync();
+                        _companyService.SaveOrUpdateCompanyOfficers(officers,DbActionFlag.Create);
                         return RedirectToAction("company_share");
                     }
                     else
@@ -1407,7 +1484,7 @@ namespace NaijaStartupWeb.Controllers
             return View();
         }
 
-        public async Task<bool> ValidateFilesFormat(HttpPostedFile file)
+        public async Task<bool> ValidateFilesFormat(HttpPostedFileBase file)
         {
             if (file == null)
                 return true;
@@ -1416,7 +1493,7 @@ namespace NaijaStartupWeb.Controllers
             //    return true;
         }
 
-        public bool ValidateFileSize(HttpPostedFile file)
+        public bool ValidateFileSize(HttpPostedFileBase file)
         {
             if (file == null)
                 return true;
@@ -1426,27 +1503,34 @@ namespace NaijaStartupWeb.Controllers
             return false;
         }
 
-        public async Task<byte[]> ConvertFileToByte(HttpPostedFile file)
+        public async Task<byte[]> ConvertFileToByte(HttpPostedFileBase file)
         {
             if (file == null)
                 return null;
-            Stream fs = file.InputStream;
-            BinaryReader br = new BinaryReader(fs);
-            return br.ReadBytes((Int32)fs.Length);
+            MemoryStream target = new MemoryStream();
+            file.InputStream.CopyTo(target);
+            return target.ToArray();
         }
 
         public async Task<ActionResult> company_share()
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             var temp = new TemporaryVariables();
-            var company = _context.Company_Registration.Include(s => s.Package).Include(u=>u.User).Where(x => x.Id == Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+            var Id = Guid.Parse(_temporaryVariables.string_var0);
+            var company = _companyService.GetCompanyDetailByGuidId(Id);
             if (company != null)
             {
-                temp.string_var0 = company.Package.PackageName;
-                temp.string_var1 = "NGN" + company.Package.Price.ToString("#,##0.00");
-                temp.string_var2 = "NGN" + company.Package.Price.ToString("#,##0.00");
+                var package = _companyService.GetPackageById(company.PackageId);
+                temp.string_var0 = package.PackageName;
+                temp.string_var1 = "NGN" + package.Price.ToString("#,##0.00");
+                temp.string_var2 = "NGN" + package.Price.ToString("#,##0.00");
                 temp.string_var3 = "NGN" + ("2,400");
                 temp.string_var4 = company.CompanyName + " " + company.CompanyType;
-                temp.string_var5 = company.User.FirstName + " " + company.User.LastName;
+                var user = _userService.get_customer(company.UserId);
+                if(user!=null)
+                temp.string_var5 = user.FirstName + " " + user.LastName;
 
             }
             return View(temp);
@@ -1455,20 +1539,24 @@ namespace NaijaStartupWeb.Controllers
         [HttpPost]
         public async Task<ActionResult> company_share(TemporaryVariables Input)
         {
-            var company =_context.Company_Registration.Include(u => u.User).Where(s=>s.Id == Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+            var id = Guid.Parse(_temporaryVariables.string_var0);
+            var company = _companyService.GetCompanyDetailByGuidId(id); 
             if (company != null)
             {
                 company.CompanyCapitalCurrency = Input.string_var6;
                 company.NoOfSharesIssue = Input.int_var0;
                 company.SharePrice = Input.decimal_var0;
                 company.SharesAllocated = Input.decimal_var1;
-                company.ShareHolderName = company.User.FirstName + " " + company.User.LastName;
+                var user = _userService.get_customer(company.UserId);
+                if(user!=null)
+                company.ShareHolderName = user.FirstName + " " + user.LastName;
             }
             try
             {
-
-                _context.Entry(company).State = System.Data.Entity.EntityState.Modified;
-                await _context.SaveChangesAsync();
+                _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
                 return RedirectToAction("order_review");
             }
             catch (Exception ex)
@@ -1482,31 +1570,48 @@ namespace NaijaStartupWeb.Controllers
         [HttpPost]
         public async Task<bool> Verify_PayStack(string reference)
         {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
             var testOrLiveSecret = ConfigurationManager.AppSettings["PayStackSecret"];
             var api = new PayStackApi(testOrLiveSecret);
             // Verifying a transaction
             var verifyResponse = api.Transactions.Verify(reference); // auto or supplied when initializing;
             if (verifyResponse.Status)
             {
-                var company = _context.Company_Registration.Include(a=>a.Payments).Include(x=>x.User).Include(s=>s.Package).Where(x=>x.Id==Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+                var Id = Guid.Parse(_temporaryVariables.string_var0);
+                var company = _companyService.GetCompanyDetailByGuidId(Id);
                 company.RegCompleted = true;
                 company.ModificationTime = DateTime.Now;
                 company.ApprovalStatus = "Awaiting Approval";
-                var req = new
-                {
-                    email = company.User.Email,
-                    amount = company.Package.Price,
-                    currency = string.IsNullOrWhiteSpace(company.CompanyCapitalCurrency)?"": company.CompanyCapitalCurrency,
-                    phone_no = company.User.PhoneNumber,
-                };
+                var package = _companyService.GetPackageById(company.PackageId);
+                decimal price = 0;
+                string email = null, phone_no = null;
 
-                if (company.Payments.Any())
+                var user = _userService.get_customer(company.UserId);
+                if (user != null)
+                {
+                    email = user.Email;
+                    phone_no = user.PhoneNumber;
+                }
+                if (package != null)
+                    price = package.Price;
+                                    var req = new
+                {
+                    email = email,
+                    amount = price,
+                    currency = string.IsNullOrWhiteSpace(company.CompanyCapitalCurrency)?"": company.CompanyCapitalCurrency,
+                    phone_no = phone_no,
+                };
+                Payments payment;
+                var payments = _companyService.GetPaymentById(company.Id);
+                if (payments.Any())
                 {
                     foreach (var item in company.Payments)
                     {
                         if (!item.Status)
                         {
-                            var payment = new Payments
+                             payment = new Payments
                             {
                                 ApiRequest = JsonConvert.SerializeObject(req),
                                 ApiResponse = JsonConvert.SerializeObject(verifyResponse),
@@ -1514,16 +1619,17 @@ namespace NaijaStartupWeb.Controllers
                                 Message = verifyResponse.Message,
                                 Amount = verifyResponse.Data.Amount,
                                 Total = verifyResponse.Data.Amount,
-                                Registration = company,
-                                PaymentType = "Online Payment"
+                                RegistrationId = company.Id,
+                                PaymentType = "Online Payment",
+                                Id = Guid.NewGuid(),
+
                                                             };
-                            _context.Payments.Add(payment);
                         }
                     }
                 }
                 else
                 {
-                    var payment = new Payments
+                    payment = new Payments
                     {
                         ApiRequest = JsonConvert.SerializeObject(req),
                         ApiResponse = JsonConvert.SerializeObject(verifyResponse),
@@ -1531,13 +1637,17 @@ namespace NaijaStartupWeb.Controllers
                         Message = verifyResponse.Message,
                         Amount = verifyResponse.Data.Amount,
                         Total = verifyResponse.Data.Amount,
-                        Registration = company,
-                        PaymentType = "Online Payment"
+                        RegistrationId = company.Id,
+                        PaymentType = "Online Payment",
+                        CreationTime = DateTime.Now,
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
+                        Id = Guid.NewGuid()
                     };
-                     _context.Payments.Add(payment);
+                    _companyService.SaveOrUpdatePayments(payment, DbActionFlag.Create);
                 };
-                await _context.SaveChangesAsync();
-                await _userService.sendEmailWithMessageAsync(company.User.Email, "Naija Startup Payment Confirmation - " + company.CompanyName + " " + company.CompanyType, "<p>Payment Successful</p><p>Your Payment of "+company.TotalAmount+" has been successfully completed</p>");
+                _companyService.SaveOrUpdateRegistration(company, DbActionFlag.Update);
+                await _userService.sendEmailWithMessageAsync(user.Email, "Naija Startup Payment Confirmation - " + company.CompanyName + " " + company.CompanyType, "<p>Payment Successful</p><p>Your Payment of "+company.TotalAmount+" has been successfully completed</p>");
 
                 return true;
             }
@@ -1545,33 +1655,48 @@ namespace NaijaStartupWeb.Controllers
         }
         public ActionResult order_review()
         {
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+
             var companyInfo = new TemporaryVariables();
-            var company = _context.Company_Registration.Include(c=>c.User).Include(x => x.Package).Include(s => s.addOnServices).Include(o => o.company_Officers).Where(x => x.Id == Guid.Parse(_temporaryVariables.string_var0)).FirstOrDefault();
+            var Id = Guid.Parse(_temporaryVariables.string_var0);
+            var company = _companyService.GetCompanyDetailByGuidId(Id);
             if (company != null)
             {
                 companyInfo = new TemporaryVariables
                 {
-                    string_var0 = company.CompanyName + " " +company.CompanyType,
+                    string_var0 = company.CompanyName + " " + company.CompanyType,
                     string_var1 = company.AlternateCompanyName + " " + company.AlternateCompanyType,
                     string_var2 = company.BusinessActivity + " and " + company.SndBusinessActivity,
                     string_var3 = company.FinancialYearEnd,
                     string_var4 = company.Address1,
                     string_var5 = company.Address2,
                     string_var6 = company.CompanyCapitalCurrency,
-                    int_var0 =    company.NoOfSharesIssue,
+                    int_var0 = company.NoOfSharesIssue,
                     string_var7 = company.SharePrice.ToString(),
                     string_var8 = company.ShareHolderName,
                     decimal_var0 = company.SharesAllocated,
                     string_var9 = company.CreationTime.ToString(),
-                    string_var10 = company.Package.PackageName,
-                    string_var11 = company.Package.CreationTime.ToString(),
-                    string_var12 = company.Package.Price.ToString(),
-                    string_var15 = company.User.Email,
-                    string_var16 = company.User.PhoneNumber,
                     string_var17 = "NGN"+ company.TotalAmount.ToString("#,##0.00"),
                     decimal_var1 = company.TotalAmount,
                 };
+
+                var user = _userService.get_customer(company.UserId);
+                if (user != null)
+                {
+                    companyInfo.string_var15 = user.Email;
+                    companyInfo.string_var16 = user.PhoneNumber;
+                }
+
+                var package = _companyService.GetPackageById(company.PackageId);
+                if (package != null) {
+
+                    companyInfo.string_var10 = package.PackageName;
+                    companyInfo.string_var11 = package.CreationTime.ToString();
+                    companyInfo.string_var12 = package.Price.ToString();
+                    }
                 if (company.company_Officers != null && company.company_Officers.Any())
+
                 {
                     foreach (var item in company.company_Officers)
                     {
@@ -1615,7 +1740,7 @@ namespace NaijaStartupWeb.Controllers
         {
             return View();
         }
-        public async Task<ActionResult> chat(int Id)
+        public async Task<ActionResult> chat(string Id)
         {
             int count = 0;
             var user = await _userService.get_User_By_Session();
@@ -1628,13 +1753,14 @@ namespace NaijaStartupWeb.Controllers
                 }
             };
             temp.string_var0 = user.FirstName + " " + user.LastName;
-            var chats = _context.ChatHeader.Include(x => x.ChatThread).Where(s => s.IsDeleted == false && s.User.Id == user.Id && s.IsTicket).OrderByDescending(m=>m.CreationTime).ToList();
+            var chats = _companyService.GetListOfInactiveChatsByUserId(user.Id);
             if (user.Role.ToLower().Equals("admin"))
-            chats = _context.ChatHeader.Include(x => x.ChatThread).Where(s => s.IsDeleted == false && s.IsTicket).OrderByDescending(m => m.CreationTime).ToList();
+                chats = _companyService.GetListOfInActiveChat();
             foreach (var item in chats)
             {
                 count = 0;
-                foreach (var x in item.ChatThread)
+                var chatThread = _companyService.GetListOfChatThreadsById(item.Id);
+                foreach (var x in chatThread)
                 {
                 //    temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                 //    {
@@ -1647,33 +1773,33 @@ namespace NaijaStartupWeb.Controllers
                 {
                     Date = item.CreationTime,
                     Status = item.Group,
-                    TicketNumber = item.Id,
+                    TicketNumber = item.Id.ToString(),
                     NoOfNew = count
                 });
                 
                 
             };
-                if (Id != 0)
+                if (Id != "0")
                 {
 
-                    var getChatById = chats.Where(x => x.Id == Id).FirstOrDefault();
-                    temp.int_var0 = getChatById.Id;
-                    foreach (var x in _context.ChatThread.Include(s => s.User).Where(x => x.IsDeleted == false && x.Chat == getChatById).ToList())
+                    var getChatById = chats.Where(x => x.Id == Guid.Parse(Id)).FirstOrDefault();
+                temp.string_var17 = getChatById.Id.ToString();
+                foreach (var x in _companyService.GetListOfChatThreadsById(getChatById.Id))
                     {
-                        temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
+                    var client = _userService.get_customer(x.UserId);
+                    temp.ChatModel.ViewChatDetails.Add(new ChatModel.ChatDetails
                         {
                             Message1 = x.Body,
-                            User = x.User.Role,
+                            User = client.Role,
                         });
-                        if (x.User != user)
+                        if (x.UserId != user.Id)
                         {
                             x.IsRead = true;
-
-                        _context.Entry(x).State = System.Data.Entity.EntityState.Modified;
+                        _companyService.SaveOrUpdateChatThread(x, DbActionFlag.Update);
                     }
                     }
-                temp.string_var0 = getChatById.User.FirstName + " " + getChatById.User.LastName;
-                await _context.SaveChangesAsync();
+                var client1 = _userService.get_customer(getChatById.UserId);
+                temp.string_var0 = client1.FirstName + " " + client1.LastName;
                 }
 
                 
@@ -1686,21 +1812,21 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
-                var chat = _context.ChatHeader.Include(s=>s.User).Where(x=>x.IsDeleted==false && x.Id ==Input.int_var0).FirstOrDefault();
+                var chat = _companyService.GetChatDetailById(Guid.Parse(Input.string_var17));
                 chat.IsTicket = true;
                 var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var2,
                         IsRead = false,
                         CreationTime = DateTime.Now,
                         CreatorUserId = user.Id,
-                        Chat = chat,
+                        ChatId = chat.Id,
                     }
                     };
-                _context.ChatThread.AddRange(ChatThread);
-                await _context.SaveChangesAsync();
+
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Update);
                 if (user.Role.ToLower().Equals("admin"))
                 {
                     var adminList = (await _userService.GetAllAdminEmails()).Take(5);
@@ -1709,11 +1835,12 @@ namespace NaijaStartupWeb.Controllers
                 }
                 else
                 {
-                    await _userService.sendEmailWithMessageAsync(chat.User.Email, "New Reply From Naija Startup", "<p>New Reply For Ticket Number #"+Input.int_var0+"</p><p>A New Reply needs your attention</p>");
+                    var client = _userService.get_customer(chat.UserId);
+                    await _userService.sendEmailWithMessageAsync(client.Email, "New Reply From Naija Startup", "<p>New Reply For Ticket Number #"+Input.int_var0+"</p><p>A New Reply needs your attention</p>");
                 }
                 Input.string_var2 = "";
             }
-            return RedirectToAction("chat", new { Id = Input.int_var0 });
+            return RedirectToAction("chat", new { Id = string.IsNullOrWhiteSpace(Input.string_var17)?"0": Input.string_var17 });
         }
 
          public async Task<ActionResult> new_ticket()
@@ -1736,39 +1863,49 @@ namespace NaijaStartupWeb.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.get_User_By_Session();
+                var guid = Guid.NewGuid();
                 var cHeader = new ChatHeader
                 {
-                    User = user,
-                    Company = string.IsNullOrWhiteSpace(Input.string_var3)?null: await _companyService.GetCompanyById(Guid.Parse(Input.string_var3)),
+                    UserId = user.Id,
                     CreationTime = DateTime.Now,
                     CreatorUserId = user.Id,
                     Subject = Input.string_var2,
                     Body = Input.string_var4,
+                    IsTicket = true,
                     Group="New",
-                    ChatThread = new List<ChatThread>()
+                    Id = guid,
+                    ModificationTime = DateTime.Now,
+                    DeletionTime = DateTime.Now,
+                    
+                };
+                if (!string.IsNullOrEmpty(Input.string_var3))
+                    cHeader.CompanyId = Guid.Parse(Input.string_var3);
+                var ChatThread = new List<ChatThread>()
                     { new ChatThread
                     {
-                        User = user,
+                        UserId = user.Id,
                         Body = Input.string_var4,
                         IsRead = false,
                         CreationTime = DateTime.Now,
-                        CreatorUserId = user.Id
+                        ModificationTime = DateTime.Now,
+                        DeletionTime = DateTime.Now,
+                        CreatorUserId = user.Id,
+                        ChatId = guid
                     }
-                    }
-                };
-                _context.ChatHeader.Add(cHeader);
-                await _context.SaveChangesAsync();
+                    };
+                _companyService.SaveOrUpdateChatThreads(ChatThread, DbActionFlag.Create);
+                _companyService.SaveOrUpdateChatHeader(cHeader, DbActionFlag.Create);
                 var adminList = (await _userService.GetAllAdminEmails()).Take(5);
                 await _userService.sendToManyEmailWithMessage(adminList.ToList(), new List<string>(),"New Ticket Created By " + user.FirstName + " " + user.LastName, "<p>Payment Successful</p><p>A New Ticket has been created for your attention</p>","");
 
             }
-            return RedirectToAction("chat");
+            return RedirectToAction("chat/0");
         }
 
         public ActionResult GetConfigurationValue(string sectionName, string paramName)
         {
             var parameterValue = ConfigurationManager.AppSettings[paramName];
-            return Json(new { parameter = parameterValue });
+            return Json(new { parameter = parameterValue }, JsonRequestBehavior.AllowGet);
         }
         public ActionResult departments()
         {

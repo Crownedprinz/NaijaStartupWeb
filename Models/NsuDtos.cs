@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -95,7 +96,10 @@ namespace NaijaStartupWeb.Models
             public List<Comp_Incentives> Comp_Incentives { get; set; }
             public string AlternateCompanyType { get; set; }
             public string FinancialYearEnd { get; set; }
-            public Package Package { get; set; }
+
+            public int PackageId { get; set; }
+            [ForeignKey("User")]
+            public string UserId { get; set; }
             public User User { get; set; }
             public string BusinessActivity { get; set; }
             public string ApprovalStatus { get; set; }
@@ -131,7 +135,7 @@ namespace NaijaStartupWeb.Models
         {
             [Key]
             public Guid Id { get; set; }
-            public Company_Registration Registration { get; set; }
+            public Guid Registration_Id { get; set; }
             public string ServiceName {get;set;}
             public decimal Price { get; set; }
             public DateTime CreationTime { get; set; }
@@ -156,7 +160,7 @@ namespace NaijaStartupWeb.Models
             public decimal Discount { get; set; }
             public decimal Total { get; set; }
             public decimal Amount { get; set; }
-            public Company_Registration Registration { get; set; }
+            public Guid RegistrationId { get; set; }
             public DateTime CreationTime { get; set; }
             public string CreatorUserId { get; set; }
             public DateTime ModificationTime { get; set; }
@@ -198,7 +202,7 @@ namespace NaijaStartupWeb.Models
         public class Comp_Incentives
         {
             public int Id { get; set; }
-            public Incentives Incentive { get; set; }
+            public int Incentive_Id { get; set; }
             public Company_Registration Registration { get; set; }
             public DateTime CreationTime { get; set; }
             public string CreatorUserId { get; set; }
@@ -211,13 +215,12 @@ namespace NaijaStartupWeb.Models
 
         public class ChatHeader
         {
-            public int Id { get; set; }
-            public User User { get; set; }
-            public Company_Registration Company { get; set; }
+            public Guid Id { get; set; }
+            public string UserId { get; set; }
+            public Guid CompanyId { get; set; }
             public string PostIncooperationName {get;set;}
             public string Group { get; set; }
             public string Subject { get; set; }
-            public List<ChatThread> ChatThread { get; set; }
             public string Body { get; set; }
             public bool IsTicket { get; set; }
             public DateTime CreationTime { get; set; }
@@ -233,8 +236,8 @@ namespace NaijaStartupWeb.Models
         public class ChatThread
         {
             public int Id { get; set; }
-            public User User { get; set; }
-            public ChatHeader Chat { get; set; }
+            public string UserId { get; set; }
+            public Guid ChatId { get; set; }
             public string Body { get; set; }
             public bool IsRead { get; set; }
             public byte[] document { get; set; }

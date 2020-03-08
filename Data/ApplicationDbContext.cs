@@ -12,6 +12,7 @@ namespace NaijaStartupWeb.Data
         public ApplicationDbContext()
             : base("DefaultConnection")
         {
+            Configuration.ProxyCreationEnabled = false;
         }
 
         public static ApplicationDbContext Create()
@@ -49,25 +50,21 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Package>()
                    .Property(x => x.ModificationUserId)
-                   .IsRequired()
                    .HasMaxLength(50)
                    .IsUnicode(false)
                    .HasColumnAnnotation("Default", "''");
             modelBuilder.Entity<Package>()
                    .Property(x => x.CreatorUserId)
-                   .IsRequired()
                    .HasMaxLength(50)
                    .IsUnicode(false)
                    .HasColumnAnnotation("Default", "''");
             modelBuilder.Entity<Package>()
                    .Property(x => x.ModificationUserId)
-                   .IsRequired()
                    .HasMaxLength(50)
                    .IsUnicode(false)
                    .HasColumnAnnotation("Default", "''");
             modelBuilder.Entity<Package>()
                    .Property(x => x.DeletionUserId)
-                   .IsRequired()
                    .HasMaxLength(50)
                    .IsUnicode(false)
                    .HasColumnAnnotation("Default", "''");
@@ -89,22 +86,23 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Contact>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Contact>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Contact>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
+            modelBuilder.Entity<Company_Registration>()
+                 .HasKey(x => x.Id);
             modelBuilder.Entity<Company_Registration>()
                  .Property(e => e.IsDeleted)
                     .HasColumnType("bit")
@@ -123,19 +121,25 @@ namespace NaijaStartupWeb.Data
                   .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Company_Registration>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Company_Registration>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Company_Registration>()
+                .Property(e => e.UserId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnAnnotation("Default", "('')");
+            modelBuilder.Entity<Company_Registration>()
+                .Property(e => e.PackageId);
+            modelBuilder.Entity<Company_Registration>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -157,31 +161,31 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Company_Officers>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Company_Officers>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Company_Officers>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<AddOnService>()
                 .Property(e => e.ServiceName)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<AddOnService>()
                 .Property(e => e.ServiceName)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -212,19 +216,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<AddOnService>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<AddOnService>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<AddOnService>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -246,19 +250,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Payments>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Payments>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Payments>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                   .HasColumnAnnotation("Default", "('')");
@@ -280,19 +284,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Package>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Package>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Package>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -314,19 +318,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Incentives>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Incentives>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Incentives>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -360,19 +364,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<Comp_Incentives>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Comp_Incentives>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<Comp_Incentives>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -394,19 +398,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<ChatHeader>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<ChatHeader>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<ChatHeader>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -428,19 +432,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default", "(getutcdate())");
             modelBuilder.Entity<ChatThread>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                    .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<ChatThread>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
             modelBuilder.Entity<ChatThread>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default", "('')");
@@ -462,19 +466,19 @@ namespace NaijaStartupWeb.Data
                    .HasColumnAnnotation("Default","(getutcdate())");
             modelBuilder.Entity<Settings>()
                 .Property(e => e.ModificationUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default","('')");
             modelBuilder.Entity<Settings>()
                 .Property(e => e.CreatorUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default","('')");
             modelBuilder.Entity<Settings>()
                 .Property(e => e.DeletionUserId)
-                    .IsRequired()
+                    
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnAnnotation("Default","('')");

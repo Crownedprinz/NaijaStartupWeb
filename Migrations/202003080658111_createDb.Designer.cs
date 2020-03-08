@@ -13,7 +13,7 @@ namespace NaijaStartupWeb.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202003041337158_createDb"; }
+            get { return "202003080658111_createDb"; }
         }
         
         string IMigrationMetadata.Source

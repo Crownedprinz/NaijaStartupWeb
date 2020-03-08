@@ -147,7 +147,7 @@ namespace NaijaStartupWeb.Controllers
                 ViewBag.message = "Successfully Created";
                 await _userService.sendEmailWithMessageAsync(admin.string_var2, "Admin Creation" , "<p>Payment Successful</p><p>You have been created as an admin Role Kindly login with your credentials below</p><p>Username: "+admin.string_var4+"</p><p>Password: "+admin.string_var6+"</p>");
 
-                return View();
+                return RedirectToAction("all_admin", null, null);
             }
             else
             {

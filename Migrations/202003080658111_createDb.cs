@@ -14,7 +14,8 @@ namespace NaijaStartupWeb.Migrations
                 c => new
                     {
                         Id = c.Guid(nullable: false),
-                        ServiceName = c.String(nullable: false, maxLength: 50, unicode: false,
+                        Registration_Id = c.Guid(nullable: false),
+                        ServiceName = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -31,7 +32,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -47,7 +48,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -63,7 +64,215 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        IsDeleted = c.Boolean(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "0")
+                                },
+                            }),
+                        Company_Registration_Id = c.Guid(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Company_Registration", t => t.Company_Registration_Id)
+                .Index(t => t.Company_Registration_Id);
+            
+            CreateTable(
+                "dbo.ChatHeaders",
+                c => new
+                    {
+                        Id = c.Guid(nullable: false),
+                        UserId = c.String(),
+                        CompanyId = c.Guid(nullable: false),
+                        PostIncooperationName = c.String(),
+                        Group = c.String(),
+                        Subject = c.String(),
+                        Body = c.String(),
+                        IsTicket = c.Boolean(nullable: false),
+                        CreationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        ModificationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        DeletionTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        IsDeleted = c.Boolean(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "0")
+                                },
+                            }),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.ChatThreads",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        UserId = c.String(),
+                        ChatId = c.Guid(nullable: false),
+                        Body = c.String(),
+                        IsRead = c.Boolean(nullable: false),
+                        document = c.Binary(),
+                        CreationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        ModificationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        DeletionTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        IsDeleted = c.Boolean(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "0")
+                                },
+                            }),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Comp_Incentives",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Incentive_Id = c.Int(nullable: false),
+                        CreationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        ModificationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        DeletionTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -96,6 +305,15 @@ namespace NaijaStartupWeb.Migrations
                         AlternateCompanyName = c.String(),
                         AlternateCompanyType = c.String(),
                         FinancialYearEnd = c.String(),
+                        PackageId = c.Int(nullable: false),
+                        UserId = c.String(maxLength: 128,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
                         BusinessActivity = c.String(),
                         ApprovalStatus = c.String(),
                         SndBusinessActivity = c.String(),
@@ -122,7 +340,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -138,7 +356,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -154,7 +372,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -170,150 +388,10 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "0")
                                 },
                             }),
-                        Package_Id = c.Int(),
-                        User_Id = c.String(maxLength: 128),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Packages", t => t.Package_Id)
-                .ForeignKey("dbo.AspNetUsers", t => t.User_Id)
-                .Index(t => t.Package_Id)
-                .Index(t => t.User_Id);
-            
-            CreateTable(
-                "dbo.Comp_Incentives",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        CreationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        ModificationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        DeletionTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        IsDeleted = c.Boolean(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "0")
-                                },
-                            }),
-                        Incentive_Id = c.Int(),
-                        Registration_Id = c.Guid(),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Incentives", t => t.Incentive_Id)
-                .ForeignKey("dbo.Company_Registration", t => t.Registration_Id)
-                .Index(t => t.Incentive_Id)
-                .Index(t => t.Registration_Id);
-            
-            CreateTable(
-                "dbo.Incentives",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        IncentiveName = c.String(),
-                        Description = c.String(),
-                        CreationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        ModificationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        DeletionTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        IsDeleted = c.Boolean(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "0")
-                                },
-                            }),
-                    })
-                .PrimaryKey(t => t.Id);
+                .ForeignKey("dbo.AspNetUsers", t => t.UserId)
+                .Index(t => t.UserId);
             
             CreateTable(
                 "dbo.Company_Officers",
@@ -345,7 +423,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -361,7 +439,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -377,7 +455,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -398,72 +476,6 @@ namespace NaijaStartupWeb.Migrations
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Company_Registration", t => t.Registration_Id)
                 .Index(t => t.Registration_Id);
-            
-            CreateTable(
-                "dbo.Packages",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        PackageName = c.String(),
-                        Price = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        CreationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        ModificationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        DeletionTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        IsDeleted = c.Boolean(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "0")
-                                },
-                            }),
-                    })
-                .PrimaryKey(t => t.Id);
             
             CreateTable(
                 "dbo.Payments",
@@ -479,6 +491,7 @@ namespace NaijaStartupWeb.Migrations
                         Discount = c.Decimal(nullable: false, precision: 18, scale: 2),
                         Total = c.Decimal(nullable: false, precision: 18, scale: 2),
                         Amount = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        RegistrationId = c.Guid(nullable: false),
                         CreationTime = c.DateTime(nullable: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
@@ -487,7 +500,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -503,7 +516,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -519,7 +532,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -535,11 +548,11 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "0")
                                 },
                             }),
-                        Registration_Id = c.Guid(),
+                        Company_Registration_Id = c.Guid(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Company_Registration", t => t.Registration_Id)
-                .Index(t => t.Registration_Id);
+                .ForeignKey("dbo.Company_Registration", t => t.Company_Registration_Id)
+                .Index(t => t.Company_Registration_Id);
             
             CreateTable(
                 "dbo.AspNetUsers",
@@ -615,154 +628,6 @@ namespace NaijaStartupWeb.Migrations
                 .Index(t => t.RoleId);
             
             CreateTable(
-                "dbo.ChatHeaders",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        PostIncooperationName = c.String(),
-                        Group = c.String(),
-                        Subject = c.String(),
-                        Body = c.String(),
-                        IsTicket = c.Boolean(nullable: false),
-                        CreationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        ModificationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        DeletionTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        IsDeleted = c.Boolean(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "0")
-                                },
-                            }),
-                        Company_Id = c.Guid(),
-                        User_Id = c.String(maxLength: 128),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Company_Registration", t => t.Company_Id)
-                .ForeignKey("dbo.AspNetUsers", t => t.User_Id)
-                .Index(t => t.Company_Id)
-                .Index(t => t.User_Id);
-            
-            CreateTable(
-                "dbo.ChatThreads",
-                c => new
-                    {
-                        Id = c.Int(nullable: false, identity: true),
-                        Body = c.String(),
-                        IsRead = c.Boolean(nullable: false),
-                        document = c.Binary(),
-                        CreationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        ModificationTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        DeletionTime = c.DateTime(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
-                                },
-                            }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "('')")
-                                },
-                            }),
-                        IsDeleted = c.Boolean(nullable: false,
-                            annotations: new Dictionary<string, AnnotationValues>
-                            {
-                                { 
-                                    "Default",
-                                    new AnnotationValues(oldValue: null, newValue: "0")
-                                },
-                            }),
-                        Chat_Id = c.Int(),
-                        User_Id = c.String(maxLength: 128),
-                    })
-                .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.ChatHeaders", t => t.Chat_Id)
-                .ForeignKey("dbo.AspNetUsers", t => t.User_Id)
-                .Index(t => t.Chat_Id)
-                .Index(t => t.User_Id);
-            
-            CreateTable(
                 "dbo.Contacts",
                 c => new
                     {
@@ -779,7 +644,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -795,7 +660,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -811,7 +676,139 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        IsDeleted = c.Boolean(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "0")
+                                },
+                            }),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Incentives",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        IncentiveName = c.String(),
+                        Description = c.String(),
+                        CreationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        ModificationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        DeletionTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        IsDeleted = c.Boolean(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "0")
+                                },
+                            }),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Packages",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        PackageName = c.String(),
+                        Price = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        CreationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        ModificationTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "('')")
+                                },
+                            }),
+                        DeletionTime = c.DateTime(nullable: false,
+                            annotations: new Dictionary<string, AnnotationValues>
+                            {
+                                { 
+                                    "Default",
+                                    new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
+                                },
+                            }),
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -857,7 +854,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        CreatorUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        CreatorUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -873,7 +870,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        ModificationUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        ModificationUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -889,7 +886,7 @@ namespace NaijaStartupWeb.Migrations
                                     new AnnotationValues(oldValue: null, newValue: "(getutcdate())")
                                 },
                             }),
-                        DeletionUserId = c.String(nullable: false, maxLength: 50, unicode: false,
+                        DeletionUserId = c.String(maxLength: 50, unicode: false,
                             annotations: new Dictionary<string, AnnotationValues>
                             {
                                 { 
@@ -916,34 +913,22 @@ namespace NaijaStartupWeb.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
-            DropForeignKey("dbo.ChatHeaders", "User_Id", "dbo.AspNetUsers");
-            DropForeignKey("dbo.ChatHeaders", "Company_Id", "dbo.Company_Registration");
-            DropForeignKey("dbo.ChatThreads", "User_Id", "dbo.AspNetUsers");
-            DropForeignKey("dbo.ChatThreads", "Chat_Id", "dbo.ChatHeaders");
-            DropForeignKey("dbo.Company_Registration", "User_Id", "dbo.AspNetUsers");
-            DropForeignKey("dbo.Payments", "Registration_Id", "dbo.Company_Registration");
-            DropForeignKey("dbo.Company_Registration", "Package_Id", "dbo.Packages");
+            DropForeignKey("dbo.Company_Registration", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.Payments", "Company_Registration_Id", "dbo.Company_Registration");
             DropForeignKey("dbo.Company_Officers", "Registration_Id", "dbo.Company_Registration");
             DropForeignKey("dbo.Comp_Incentives", "Registration_Id", "dbo.Company_Registration");
-            DropForeignKey("dbo.Comp_Incentives", "Incentive_Id", "dbo.Incentives");
-            DropForeignKey("dbo.AddOnServices", "Registration_Id", "dbo.Company_Registration");
+            DropForeignKey("dbo.AddOnServices", "Company_Registration_Id", "dbo.Company_Registration");
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
-            DropIndex("dbo.ChatThreads", new[] { "User_Id" });
-            DropIndex("dbo.ChatThreads", new[] { "Chat_Id" });
-            DropIndex("dbo.ChatHeaders", new[] { "User_Id" });
-            DropIndex("dbo.ChatHeaders", new[] { "Company_Id" });
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
-            DropIndex("dbo.Payments", new[] { "Registration_Id" });
+            DropIndex("dbo.Payments", new[] { "Company_Registration_Id" });
             DropIndex("dbo.Company_Officers", new[] { "Registration_Id" });
+            DropIndex("dbo.Company_Registration", new[] { "UserId" });
             DropIndex("dbo.Comp_Incentives", new[] { "Registration_Id" });
-            DropIndex("dbo.Comp_Incentives", new[] { "Incentive_Id" });
-            DropIndex("dbo.Company_Registration", new[] { "User_Id" });
-            DropIndex("dbo.Company_Registration", new[] { "Package_Id" });
-            DropIndex("dbo.AddOnServices", new[] { "Registration_Id" });
+            DropIndex("dbo.AddOnServices", new[] { "Company_Registration_Id" });
             DropTable("dbo.Settings",
                 removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
                 {
@@ -998,113 +983,113 @@ namespace NaijaStartupWeb.Migrations
                     },
                 });
             DropTable("dbo.AspNetRoles");
+            DropTable("dbo.Packages",
+                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
+                {
+                    {
+                        "CreationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "CreatorUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "DeletionTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "DeletionUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "IsDeleted",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "0" },
+                        }
+                    },
+                    {
+                        "ModificationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "ModificationUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                });
+            DropTable("dbo.Incentives",
+                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
+                {
+                    {
+                        "CreationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "CreatorUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "DeletionTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "DeletionUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "IsDeleted",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "0" },
+                        }
+                    },
+                    {
+                        "ModificationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "ModificationUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                });
             DropTable("dbo.Contacts",
-                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
-                {
-                    {
-                        "CreationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "CreatorUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "DeletionTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "DeletionUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "IsDeleted",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "0" },
-                        }
-                    },
-                    {
-                        "ModificationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "ModificationUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                });
-            DropTable("dbo.ChatThreads",
-                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
-                {
-                    {
-                        "CreationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "CreatorUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "DeletionTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "DeletionUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "IsDeleted",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "0" },
-                        }
-                    },
-                    {
-                        "ModificationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "ModificationUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                });
-            DropTable("dbo.ChatHeaders",
                 removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
                 {
                     {
@@ -1214,59 +1199,6 @@ namespace NaijaStartupWeb.Migrations
                         }
                     },
                 });
-            DropTable("dbo.Packages",
-                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
-                {
-                    {
-                        "CreationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "CreatorUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "DeletionTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "DeletionUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                    {
-                        "IsDeleted",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "0" },
-                        }
-                    },
-                    {
-                        "ModificationTime",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "(getutcdate())" },
-                        }
-                    },
-                    {
-                        "ModificationUserId",
-                        new Dictionary<string, object>
-                        {
-                            { "Default", "('')" },
-                        }
-                    },
-                });
             DropTable("dbo.Company_Officers",
                 removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
                 {
@@ -1320,7 +1252,7 @@ namespace NaijaStartupWeb.Migrations
                         }
                     },
                 });
-            DropTable("dbo.Incentives",
+            DropTable("dbo.Company_Registration",
                 removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
                 {
                     {
@@ -1367,6 +1299,13 @@ namespace NaijaStartupWeb.Migrations
                     },
                     {
                         "ModificationUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "UserId",
                         new Dictionary<string, object>
                         {
                             { "Default", "('')" },
@@ -1426,7 +1365,60 @@ namespace NaijaStartupWeb.Migrations
                         }
                     },
                 });
-            DropTable("dbo.Company_Registration",
+            DropTable("dbo.ChatThreads",
+                removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
+                {
+                    {
+                        "CreationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "CreatorUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "DeletionTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "DeletionUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                    {
+                        "IsDeleted",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "0" },
+                        }
+                    },
+                    {
+                        "ModificationTime",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "(getutcdate())" },
+                        }
+                    },
+                    {
+                        "ModificationUserId",
+                        new Dictionary<string, object>
+                        {
+                            { "Default", "('')" },
+                        }
+                    },
+                });
+            DropTable("dbo.ChatHeaders",
                 removedColumnAnnotations: new Dictionary<string, IDictionary<string, object>>
                 {
                     {

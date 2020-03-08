@@ -426,7 +426,7 @@
                         </div><!--//container-->
                     </div><!--//price-plan-->
                     <!-- <div class="row" style="margin-bottom: 5%"> <br> <br>
-                </div> -->
+                    </div> -->
 
                 </div>
             </div>
@@ -603,7 +603,8 @@
             </div>
             <div class="row copyright">
                 <div class="pull-right"><img src="custom/images/logo-footer.png" alt="logo"></div>
-                <p>Copyright &copy; <script>document.write(new Date().getFullYear());</script>. Naija-Startup Ltd</p>
+                <p>Copyright &copy;
+                <script>document.write(new Date().getFullYear());</script>. Naija-Startup Ltd</p>
             </div>
         </div>
     </div>
@@ -649,6 +650,8 @@
 
     <script src="custom/js/bootstrap.min.js"></script>
 
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
     <script>
         //make nav bar collapse on click of body
         $('body').click((e) => {
@@ -665,7 +668,7 @@
                 $anchor2.addClass('active');
 
                 $('html, body').stop().animate({
-                    scrollTop: ($($anchor.attr('href')).offset().top())-80
+                    scrollTop: ($($anchor.attr('href')).offset().top()) - 80
                 }, 1500, 'easeInOutExpo');
                 event.preventDefault();
             });
@@ -694,13 +697,21 @@
             var val1 = $('#id_username').val();
             var val2 = $('#id_password').val();
             if (val1 === null || val1 === "") {
-                alert("Please Input your username or email");
+                 swal({
+                            title: "Invalid Login!",
+                            text: "Please Input your username or email!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
 
             if (val2 === null || val2 === "") {
-                alert("Please Input your password");
+                swal({
+                            title: "Invalid Login!",
+                            text: "Please Input your password!",
+                            icon: "error",
+                        });
                 $(".se-pre-con").fadeOut("slow");
                 return;
             }
@@ -710,12 +721,16 @@
                 url: "/Account/Index",
                 data: { "username": val1, "password": val2, "rememberMe": val3 },
                 success: function (data) {
-                    
+
                     if (data == "True") {
                         window.location.href = "/Dashboard/Index";
                     }
                     else {
-                        alert("Invalid username or password")
+                        swal({
+                            title: "Invalid Login!",
+                            text: "Invalid username or password!",
+                            icon: "error",
+                        });
                         $(".se-pre-con").fadeOut("slow");
                         return;
 
@@ -730,20 +745,36 @@
             var val2 = $('#id_cemail').val();
             var val3 = $('#id_cphone').val();
             var val4 = $('#id_cmessage').val();
-            if (val1 === null || val2 === null || val3 === null || val4 === null)
-                return alert("Please all fields are required");
+            if (val1 === null || val2 === null || val3 === null || val4 === null) {
+             return   swal({
+                            title: "Invalid Details!",
+                            text: "Please all fields are required!",
+                            icon: "error",
+                        });
+            }
             if (val1 === "" || val2 === "" || val3 === "" || val4 === "")
-                return alert("Please all fields are required");
+                return   swal({
+                            title: "Invalid Details!",
+                            text: "Please all fields are required!",
+                            icon: "error",
+                        });
             if (!validateEmail(val2))
-                return alert(val2 + " is not a valid email address");
+                return   swal({
+                            title: "Invalid Details!",
+                            text: "is not a valid email address!",
+                            icon: "error",
+                        });
             if (val3.length <= 10)
-                return alert(val3 + " is not a valid phone number");
+                return   swal({
+                            title: "Invalid Details!",
+                            text: "is not a valid phone number!",
+                            icon: "error",
+                        });
             $.ajax({
                 type: "post",
                 url: "/Account/SaveContact",
                 data: { "fullName": val1, "email": val2, "phoneNumber": val3, "message": val4 },
                 success: function (data) {
-                    alert(data);
                     document.location.reload();
 
                 }
@@ -758,7 +789,11 @@
         function searchCompany() {
             var company = $('#id_companyText').val();
             if (company === null || company === "")
-                return alert("Kindly Input a valid company Name");
+                 return   swal({
+                            title: "Invalid Details!",
+                            text: "Kindly Input a valid company Name!",
+                            icon: "error",
+                        });
             $.ajax({
                 type: "post",
                 url: "/Account/checkSession",
@@ -777,7 +812,11 @@
         function searchCompany1() {
             var company = $('#id_companyText1').val();
             if (company === null || company === "")
-                return alert("Kindly Input a valid company Name");
+                return   swal({
+                            title: "Invalid Details!",
+                            text: "Kindly Input a valid company Name!",
+                            icon: "error",
+                        });
             $.ajax({
                 type: "post",
                 url: "/Account/checkSession",

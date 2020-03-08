@@ -8,12 +8,12 @@ using System.Web.Mvc;
 
 namespace NaijaStartupWeb.Helpers
 {
-        internal class UnauthorizedCustomFilterAttribute : Attribute, IActionFilter
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class UnauthorizedCustomFilterAttribute : ActionFilterAttribute, IActionFilter
     {
         private bool skipLogging = false;
-        public void OnActionExecuting(ActionExecutingContext context)
+        void IActionFilter.OnActionExecuting(ActionExecutingContext context)
         {
-
             if (context.HttpContext.User == null)
             {
                 context.Result = new RedirectResult("~/Index.html");
@@ -32,14 +32,8 @@ namespace NaijaStartupWeb.Helpers
             }
         }
 
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
-            if (skipLogging)
-            {
-                return;
-            }
-            // do something after the action executes
-        }
-        }
+
+    }
+
 
 }

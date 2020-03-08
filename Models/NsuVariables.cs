@@ -71,15 +71,15 @@ namespace NaijaStartupWeb.Models
 
             public string ApprovalLevelStatus { get; set; }
             public ChatModel ChatModel { get; set; }
-            public HttpPostedFile File1 { get; set; }
-            public HttpPostedFile File2 { get; set; }
-            public HttpPostedFile File3 { get; set; }
-            public HttpPostedFile File4 { get; set; }
-            public HttpPostedFile File5 { get; set; }
-            public HttpPostedFile File6 { get; set; }
-            public HttpPostedFile File7 { get; set; }
-            public HttpPostedFile File8 { get; set; }
-            public HttpPostedFile File9 { get; set; }
+            public HttpPostedFileBase File1 { get; set; }
+            public HttpPostedFileBase File2 { get; set; }
+            public HttpPostedFileBase File3 { get; set; }
+            public HttpPostedFileBase File4 { get; set; }
+            public HttpPostedFileBase File5 { get; set; }
+            public HttpPostedFileBase File6 { get; set; }
+            public HttpPostedFileBase File7 { get; set; }
+            public HttpPostedFileBase File8 { get; set; }
+            public HttpPostedFileBase File9 { get; set; }
         }
 
         public class GlobalVariables
@@ -103,7 +103,7 @@ namespace NaijaStartupWeb.Models
             public string Response { get; set; }
             public class ChatList
             {
-                public int TicketNumber { get; set; }
+                public string TicketNumber { get; set; }
                 public byte[] Image { get; set; }
                 public string Status { get; set; }
                 public int NoOfNew { get; set; }

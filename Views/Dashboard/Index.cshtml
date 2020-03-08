@@ -114,7 +114,7 @@
                                                 </div>
                                                 <div class="panel-body">
                                                     <label for="searchbox" class="control-label">  Type company name</label><br>
-                                                    <form name="submitbiz" class="signup-form" action="../confirm" onsubmit="return validateForm()" method="post">
+                                                    <form name="submitbiz" class="signup-form" action="Index" onsubmit="return validateForm()" method="post">
                                                         <div class="input-group">
                                                             <input type="text" name="search-box" id="edit-title" class="form-control searcharea" placeholder="Enter a company name" required="required" autocomplete="off">
                                                             <span class="input-group-btn">
@@ -247,8 +247,9 @@
             url: "/Account/checkSession",
             data: { companyName: val1 },
             success: function (data) {
-                if (data)
+                if (data == "True") {
                     window.location.href = "/Dashboard/new_company";
+                }
                 else {
                     window.location.href = "/Account/LogOff";
                 }

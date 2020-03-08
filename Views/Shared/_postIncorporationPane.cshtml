@@ -3,7 +3,7 @@
     <div class="chat-search">
         <div class="form-group">
             <div class="input-group">
-                <a href="@Url.Action("new_requests", "Dashboard",Model.string_var10)" class="btn btn-primary shadow-none" ">New Request</a>
+                <a href="/Dashboard/new_requests/@Model.string_var10" class="btn btn-primary shadow-none">New Request</a>
             </div>
         </div>
     </div>
@@ -12,7 +12,7 @@
         <div class="tab-pane fade show active" id="general_chat">
             @foreach (var item in Model.ChatModel.ViewChatList)
             {
-                <a href="@Url.Action(@Model.string_var11, "Dashboard",@item.TicketNumber)" class="media new-message">
+                <a href="/Dashboard/@Model.string_var11/@item.TicketNumber" class="media new-message">
                         <div class="media-left">
                         </div>
                         <!-- media-left -->
