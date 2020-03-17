@@ -37,6 +37,12 @@ namespace NaijaStartupWeb.Controllers
 
         public async Task<ActionResult> Index()
         {
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+
+            if (_temporaryVariables != null)
+                if (!string.IsNullOrWhiteSpace(_temporaryVariables.string_var1))
+                    return RedirectToAction("new_company", new { Id = "" });
             var temp = new TemporaryVariables
             {
                 int_var0 = _companyService.Company_Count(),
@@ -793,6 +799,42 @@ namespace NaijaStartupWeb.Controllers
                                 date_var0 = x.CreationTime,
                             }).ToList());
         }
+        public async Task<ActionResult> packageList()
+        {
+
+            return View(_companyService.GetListOfAllPackages().
+                            Select(x => new TemporaryVariables
+                            {
+                                int_var0 = x.Id,
+                                string_var0 = x.PackageName,
+                                string_var1 = x.Price.ToString(),
+                                string_var2 = "",
+                                date_var0 = x.ModificationTime,
+                            }).ToList());
+        }
+        public async Task<ActionResult> edit_package(int Id)
+        {
+            var package = _companyService.GetPackageById(Id);
+            if (package == null) return View();
+            TemporaryVariables Input = new TemporaryVariables
+            {
+                int_var0 = package.Id,
+                string_var0 = package.PackageName,
+                decimal_var0 = package.Price,
+            };
+            return View(Input);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> edit_package(TemporaryVariables Input)
+        {
+            var package = _companyService.GetPackageById(Input.int_var0);
+            if (package == null) return View();
+            if (package.Id == 0) return View();
+            package.Price = Input.decimal_var0;
+            _companyService.SaveOrUpdatePackage(package, DbActionFlag.Update);
+            return RedirectToAction("packageList");
+        }
         public async Task<ActionResult> view_incentives(int Id)
         {
             var inc = _companyService.GetIncentiveById(Id);
@@ -997,14 +1039,14 @@ namespace NaijaStartupWeb.Controllers
                     decimal_var0 = company.SharesAllocated,
                     string_var15 = company.Id.ToString(),
                     string_var17 = company.TotalAmount.ToString("#,##0.00"),
-                    string_var9 = company.CreationTime.ToString()
+                    string_var9 = company.CreationTime.ToString(),
+                    string_var12 = company.PackagePrice.ToString("#,##0.00"),
             };
                 var package = _companyService.GetPackageById(company.PackageId);
                 if (package != null)
                 {
                     companyInfo.string_var10 = package.PackageName;
                     companyInfo.string_var11 = package.CreationTime.ToString();
-                    companyInfo.string_var12 = package.Price.ToString("#,##0.00");
                 }
                 
                 if (company.company_Officers != null && company.company_Officers.Any())
@@ -1262,6 +1304,7 @@ namespace NaijaStartupWeb.Controllers
                 }
                 else
                 {
+                    
                     var regComp = new Company_Registration
                     {
                         CompanyName = companyName,
@@ -1275,6 +1318,12 @@ namespace NaijaStartupWeb.Controllers
                         DeletionTime = DateTime.Now,
                         Id = Guid.NewGuid()
                     };
+                    if (!string.IsNullOrWhiteSpace(_temporaryVariables.string_var2))
+                    {
+                         var product = GetPackageByProductName(_temporaryVariables.string_var2);
+                        regComp.PackageId = product.Id;
+                    }
+                        
                     try
                     {
                         _companyService.SaveOrUpdateRegistration(regComp, DbActionFlag.Create);
@@ -1296,7 +1345,27 @@ namespace NaijaStartupWeb.Controllers
         }
         public ActionResult packages()
         {
-            return View();
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+            var tempVariable = new TemporaryVariables
+            {
+                string_var1 = GetPackageByProductName("ESSENTIAL").Price.ToString("#,##0"),
+                string_var2 = GetPackageByProductName("STANDARD").Price.ToString("#,##0"),
+                string_var3 = GetPackageByProductName("PREMIUM").Price.ToString("#,##0"),
+            };
+
+            if(_temporaryVariables!=null)
+                if(!string.IsNullOrWhiteSpace(_temporaryVariables.string_var2))
+                {
+                    var package = _temporaryVariables.string_var2;
+                    if (package == "ESSENTIAL")
+                        tempVariable.string_var1 = _temporaryVariables.decimal_var5.ToString("#,##0");
+                if (package == "STANDARD")
+                        tempVariable.string_var2 = _temporaryVariables.decimal_var5.ToString("#,##0");
+                if (package == "PREMIUM")
+                        tempVariable.string_var3 = _temporaryVariables.decimal_var5.ToString("#,##0");
+                }
+            return View(tempVariable);
         }
         [HttpPost]
         public async Task<ActionResult> packages(TemporaryVariables Input)
@@ -1307,8 +1376,19 @@ namespace NaijaStartupWeb.Controllers
             var company =  _companyService.GetCompanyById(Guid.Parse(_temporaryVariables.string_var0));
             if (company != null)    
             {
-                company.PackageId = GetProductId(Input.string_var0).Id;
-                company.TotalAmount = GetProductId(Input.string_var0).Price;
+                var product = GetProductId(Input.string_var0);
+                company.PackageId = product.Id;
+                if (_temporaryVariables.decimal_var5 == 0)
+                {
+                    company.TotalAmount = product.Price;
+                    company.PackagePrice = product.Price;
+                }
+                else
+                {
+                    company.TotalAmount = _temporaryVariables.decimal_var5;
+                    company.PackagePrice = _temporaryVariables.decimal_var5;
+
+                }
                 }
             try
             {
@@ -1328,6 +1408,12 @@ namespace NaijaStartupWeb.Controllers
             else if (product.Equals("2")) productname = "standard";
             else productname = "premium";
             var company = _companyService.GetPackageByProductName(productname);
+            return company;
+        }
+
+        public Package GetPackageByProductName(string product)
+        {
+            var company = _companyService.GetPackageByProductName(product);
             return company;
         }
         public ActionResult order_summary()

@@ -49,6 +49,7 @@ namespace NaijaStartupWeb.Services
         List<Incentives> GetListOfAllIncentives();
         Incentives GetIncentiveById(int Id);
         bool SaveOrUpdateIncentive(Incentives record, DbActionFlag flag);
+        bool SaveOrUpdatePackage(Package record, DbActionFlag flag);
         List<Comp_Incentives> GetCompIncentivesByCompanyId(Guid Id);
         bool SaveOrUpdateCompIncentiveRange(List<Comp_Incentives> record, DbActionFlag flag);
         bool SaveOrUpdateCompIncentive(Comp_Incentives record, DbActionFlag flag);
@@ -62,6 +63,7 @@ namespace NaijaStartupWeb.Services
         List<Comp_Incentives> GetComanyIncentivesByCompanyId(Guid Id);
         List<Comp_Incentives> GetAllComanyIncentives();
         List<Payments> GetPaymentById(Guid Id);
+        List<Package> GetListOfAllPackages();
     }
     public class CompanyService : ICompanyService
     {
@@ -156,6 +158,10 @@ namespace NaijaStartupWeb.Services
         {
             return _context.Incentives.Where(x => x.IsDeleted == false).OrderByDescending(s => s.CreationTime).ToList();
          }
+        public List<Package> GetListOfAllPackages()
+        {
+            return _context.Package.Where(x => x.IsDeleted == false).OrderByDescending(s => s.CreationTime).ToList();
+        }
 
         public List<ChatHeader> GetListOfChatsByUserId(string Id, string UserType, string ScreenType)
         {
@@ -350,6 +356,26 @@ namespace NaijaStartupWeb.Services
                     _context.Entry(record).State = System.Data.Entity.EntityState.Modified;
                 else if (DbActionFlag.Delete == flag)
                     _context.Incentives.Remove(record);
+
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+        }
+        public bool SaveOrUpdatePackage(Package record, DbActionFlag flag)
+        {
+            try
+            {
+                if (DbActionFlag.Create == flag)
+                    _context.Package.Add(record);
+                else if (DbActionFlag.Update == flag)
+                    _context.Entry(record).State = System.Data.Entity.EntityState.Modified;
+                else if (DbActionFlag.Delete == flag)
+                    _context.Package.Remove(record);
 
                 _context.SaveChanges();
                 return true;

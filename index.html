@@ -378,13 +378,13 @@
                                     <h3 class="heading">ESSENTIAL</h3>
                                     <div class="content">
                                         <i>Ideal for start-ups just launching out </i>
-                                        <p class="price-figure"><span class="currency">&#8358;</span><span class="number">100,000</span></p>
+                                        <!--<p class="price-figure"><span class="currency">&#8358;</span><span class="number">100,000</span></p>-->
                                         <ul class="list-unstyled feature-list">
                                             <li>1m Share Capital</li>
                                             <li>Email support</li>
                                             <li>Free update</li>
                                         </ul>
-                                        <a href="#" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b>Continue</b></a>
+                                        <button onclick="packagePick('ESSENTIAL')" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b>Continue</b></button>
                                     </div><!--//content-->
                                 </div><!--//item-->
 
@@ -392,30 +392,30 @@
                                     <h3 class="heading">STANDARD <span class="label label-custom">Popular</span></h3>
                                     <div class="content">
                                         <i>Suitable for growing and mid-size businesses </i>
-                                        <p class="price-figure"><span class="currency">&#8358;</span><span class="number">210,000</span></p>
+                                        <!--<p class="price-figure"><span class="currency">&#8358;</span><span class="number">210,000</span></p>-->
                                         <ul class="list-unstyled feature-list">
                                             <li>5m Share Capital</li>
                                             <li>Email priority support</li>
                                             <li>Full document backup</li>
                                         </ul>
-                                        <a href="#" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b> Continue</b></a>
+                                        <button onclick="packagePick('STANDARD')" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b> Continue</b></button>
                                     </div><!--//content-->
                                 </div><!--//item-->
 
                                 <div class="item col-md-4 col-sm-4 col-xs-12">
-                                    <h3 class="heading">Premium</h3>
+                                    <h3 class="heading">PREMIUM</h3>
 
                                     <div class="content">
                                         <i>Suitable for foreign and large revenue businesses </i>
-                                        <p class="price-figure">
+                                        <!--<p class="price-figure">
                                             <span class="currency">&#8358;</span><span class="number">475,000</span>
-                                        </p>
+                                        </p>-->
                                         <ul class="list-unstyled feature-list">
                                             <li>10m Share Capital</li>
                                             <li>24/7 email support</li>
                                             <li>Full document backup</li>
                                         </ul>
-                                        <a href="#" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b> Continue</b></a>
+                                        <button onclick="packagePick('PREMIUM')" class="btn btn-cta btn-cta-primary"><i class="icon-hand-right icon-white"></i><b> Continue</b></button>
                                         <!--//<a class="btn btn-cta btn-cta-primary" href="#">Sign Up <br /><span class="extra">30 day free trial</span></a>content-->
                                     </div>
                                 </div><!--//item-->
@@ -438,7 +438,7 @@
                     <h3>Feedbacks from our valuable customers</h3>
                 </div>
             </div>
-            <div class="row Testimonials">
+            <!--<div class="row Testimonials">
                 <div class="col-sm-6 col-md-4 tm-data">
                     <div class="img-thumbnail">
                         <img src="custom/images/RMD1.jpg" alt="client">
@@ -466,9 +466,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
-            <div class="row PartnersList"> <img src="custom/images/logo1.jpg" alt="logo"> <img src="custom/images/logo2.jpg" alt="logo"> <img src="custom/images/logo3.jpg" alt="logo"> <img src="custom/images/logo4.jpg" alt="logo"> <img src="custom/images/logo5.jpg" alt="logo"> </div>
+            <!--<div class="row PartnersList"> <img src="custom/images/logo1.jpg" alt="logo"> <img src="custom/images/logo2.jpg" alt="logo"> <img src="custom/images/logo3.jpg" alt="logo"> <img src="custom/images/logo4.jpg" alt="logo"> <img src="custom/images/logo5.jpg" alt="logo"> </div>-->
         </div>
         <!--end of main content-->
     </div>
@@ -696,6 +696,8 @@
             var val3 = document.getElementById("id_rememberme").checked
             var val1 = $('#id_username').val();
             var val2 = $('#id_password').val();
+            var package = localStorage.getItem("packageName");
+            var company = localStorage.getItem("companyName");
             if (val1 === null || val1 === "") {
                  swal({
                             title: "Invalid Login!",
@@ -719,9 +721,10 @@
             $.ajax({
                 type: "post",
                 url: "/Account/Index",
-                data: { "username": val1, "password": val2, "rememberMe": val3 },
+                data: {
+                    "username": val1, "password": val2, "rememberMe": val3, "company": company, "package":package},
                 success: function (data) {
-
+                    localStorage.clear();
                     if (data == "True") {
                         window.location.href = "/Dashboard/Index";
                     }
@@ -803,6 +806,7 @@
                         window.location.href = "/Dashboard/new_company";
                     }
                     else {
+                        localStorage.setItem("companyName", company);
                         $(".modal").modal();
                     }
 
@@ -826,6 +830,30 @@
                         window.location.href = "/Dashboard/new_company";
                     }
                     else {
+                        localStorage.setItem("companyName", company);
+                        $(".modal").modal();
+                    }
+
+                }
+            })
+        }
+        function packagePick(package) {
+            if (package === null || package === "")
+                 return   swal({
+                            title: "Invalid Details!",
+                            text: "Kindly Input a valid company Name!",
+                            icon: "error",
+                        });
+            $.ajax({
+                type: "post",
+                url: "/Account/checkPackageSession",
+                data: { companyName: package },
+                success: function (data) {
+                    if (data == "True") {
+                        window.location.href = "/Dashboard/new_company";
+                    }
+                    else {
+                        localStorage.setItem("packageName", package);
                         $(".modal").modal();
                     }
 

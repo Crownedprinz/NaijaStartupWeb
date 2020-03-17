@@ -139,8 +139,9 @@
             $.ajax({
                 type: "post",
                 url: "/Account/Index",
-                data: { "username": val1, "password": val2, "rememberMe": val3 },
+                data: { "username": val1, "password": val2, "rememberMe": val3, "company":"", "package":"" },
                 success: function (data) {
+                    localStorage.clear();
                     if (data == "True") {
                         window.location.href = "/Dashboard/Index";
                     }

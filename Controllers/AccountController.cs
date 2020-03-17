@@ -30,7 +30,7 @@ namespace NaijaStartupWeb.Controllers
 
 
         [HttpPost]
-        public async Task<bool> Index(string username, string password, bool rememberMe)
+        public async Task<bool> Index(string username, string password, bool rememberMe,string company, string package)
         {
 
             temporaryVariables = new TemporaryVariables();
@@ -52,6 +52,10 @@ namespace NaijaStartupWeb.Controllers
                     globalVariables.userid = user.Id;
                     globalVariables.RoleId = user.Role;
                     globalVariables.userName = user.UserName;
+                    if (!string.IsNullOrWhiteSpace(company))
+                        temporaryVariables.string_var1 = company;
+                    if (!string.IsNullOrWhiteSpace(package))
+                        temporaryVariables.string_var2 = package;
                     Session["TemporaryVariables"]= temporaryVariables;
                     Session["GlobalVariables"]= globalVariables;
                     return true;
@@ -204,6 +208,32 @@ namespace NaijaStartupWeb.Controllers
                 }
             }
                 return IsSession;
+        }
+        [HttpPost]
+        public bool checkPackageSession(string package)
+        {
+
+            _globalVariables = (GlobalVariables)Session["GlobalVariables"];
+            _temporaryVariables = (TemporaryVariables)Session["TemporaryVariables"];
+            var IsSession = false;
+            if (_globalVariables == null)
+                IsSession = false;
+            else
+            {
+                if (_globalVariables.userid != null)
+                {
+                    IsSession = true;
+                    _temporaryVariables.string_var2 = package;
+                    Session["TemporaryVariables"] = _temporaryVariables;
+
+                }
+                else
+                {
+                    IsSession = false;
+
+                }
+            }
+            return IsSession;
         }
         public ActionResult Profile()
         {

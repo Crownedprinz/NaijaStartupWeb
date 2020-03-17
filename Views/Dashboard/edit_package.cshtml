@@ -1,6 +1,6 @@
 ﻿@model NaijaStartupWeb.Models.NsuVariables.TemporaryVariables
 @{
-    ViewData["Title"] = "new_incentive";
+    ViewBag.Title = "edit_package";
     Layout = "~/Views/Shared/_DbLayout.cshtml";
 }
 
@@ -14,11 +14,11 @@
                     <div class="float-right">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">new_incentive</a></li>
-                            <li class="breadcrumb-item active">Add Incentive</li>
+                            <li class="breadcrumb-item"><a href="javascript:void(0);">edit_package</a></li>
+                            <li class="breadcrumb-item active">Edit Package</li>
                         </ol>
                     </div>
-                    <h4 class="page-title">Add Incentive</h4>
+                    <h4 class="page-title">Edit Package</h4>
                 </div>
                 <!--end page-title-box-->
             </div>
@@ -32,16 +32,22 @@
                         <div class="">
                             <form role="form" method="post" enctype="multipart/form-data">
                                 <div class="form-group row">
+                                    <div class="col-sm-3">PackageName</div>
                                     <div class="col-md-4">
-                                        @Html.TextBoxFor(m => m.string_var0, new { @class = "form-control required", @placeholder = "Incentive Name", id = "id_name", name = "incentive_name", required = "required" })
-                                        @Html.HiddenFor(m=>m.int_var0)
+                                        @Html.TextBoxFor(m => m.string_var0, new { @class = "form-control required", @placeholder = "Incentive Name", id = "id_name", name = "incentive_name", disabled = "disabled" })
+                                        @Html.HiddenFor(m => m.string_var0)
+                                        @Html.HiddenFor(m => m.int_var0)
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                     @Html.TextAreaFor(m => m.string_var1, new { @class = "form-control required", @placeholder = "Incentive Description", id = "incentive_desc", name = "incentive_desc", rows = "5", required = "required" })
-                                    <a class="btn btn-danger btn-sm text-light px-4 mt-3 float-right mb-0 ml-2" href="/Dashboard/Incentives">Cancel</a>
-                                    <button type="submit" class="btn btn-primary btn-sm text-light px-4 mt-3 float-right mb-0">Save</button>
+                                <div class="form-group row">
+                                    <div class="col-sm-3">Price</div>
+                                    <div class="col-md-4">
+                                        @Html.TextBoxFor(m => m.decimal_var0, new { @class = "form-control required", @placeholder = "Incentive Name", id = "id_name", name = "incentive_name", required = "required" })
+                                    </div>
                                 </div>
+                                <div class="row"></div>
+                                <button type="submit" class="btn btn-primary btn-sm text-light px-4 mt-3 float-right mb-0">Update</button>
+
                             </form>
                         </div>
                     </div>

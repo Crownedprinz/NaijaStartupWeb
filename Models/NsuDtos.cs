@@ -98,6 +98,7 @@ namespace NaijaStartupWeb.Models
             public string FinancialYearEnd { get; set; }
 
             public int PackageId { get; set; }
+            public decimal PackagePrice { get; set; }
             [ForeignKey("User")]
             public string UserId { get; set; }
             public User User { get; set; }
